@@ -41,8 +41,26 @@ def execute(sql, args=()):
     return cur
 
 
+# Columns added after the first release. SQLite has no "ADD COLUMN IF NOT
+# EXISTS", so each one is checked against the table before it is added.
+MIGRATIONS = [
+    ("tracked_show", "shortlist", "INTEGER NOT NULL DEFAULT 0"),
+    ("movie", "digital_release", "TEXT"),
+    ("movie", "providers", "TEXT"),
+    ("movie", "provider_link", "TEXT"),
+    ("movie", "providers_checked_at", "TEXT"),
+]
+
+
+def _apply_migrations(conn):
+    for table, column, spec in MIGRATIONS:
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in columns:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {spec}")
+
+
 def init_db():
-    """Create tables and seed the single admin user if absent."""
+    """Create tables, apply migrations, and seed the admin user if absent."""
     from datetime import datetime, timezone
     from werkzeug.security import generate_password_hash
 
@@ -52,6 +70,7 @@ def init_db():
 
     conn = connect()
     conn.executescript(schema)
+    _apply_migrations(conn)
     row = conn.execute("SELECT 1 FROM admin_user WHERE id = 1").fetchone()
     if row is None:
         conn.execute(

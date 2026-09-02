@@ -16,10 +16,13 @@ def _now():
 @bp.route("/movies")
 @login_required
 def index():
+    films = queries.films_by_state()
     return render_template(
         "pages/movies.html",
-        to_watch=queries.movies(watched=False),
-        watched=queries.movies(watched=True),
+        ready=films["ready"],
+        waiting=films["waiting"],
+        seen=films["seen"],
+        provider_names=queries.provider_names,
     )
 
 
@@ -39,7 +42,13 @@ def detail(movie_id):
     tracked = db.query(
         "SELECT watched_at FROM tracked_movie WHERE movie_id = ?", (movie_id,), one=True
     )
-    return render_template("pages/movie.html", movie=row, tracked=tracked)
+    return render_template(
+        "pages/movie.html",
+        movie=row,
+        tracked=tracked,
+        providers=queries.provider_names(row),
+        streamable=queries.is_streamable(row),
+    )
 
 
 @bp.route("/movie/<int:movie_id>/track", methods=["POST"])
@@ -55,7 +64,29 @@ def track(movie_id):
         "INSERT OR IGNORE INTO tracked_movie (movie_id, added_at) VALUES (?, ?)",
         (movie_id, _now()),
     )
-    flash(f"Added {payload.get('title')} to your films.", "success")
+    # Work out straight away whether it can be watched at home yet.
+    try:
+        digital, names = sync.sync_movie_availability(movie_id)
+    except tmdb.TmdbError:
+        digital, names = None, []
+    title = payload.get("title")
+    if names:
+        flash(f"Added {title}. It is on {', '.join(names)} now.", "success")
+    elif digital:
+        flash(f"Added {title}. Streaming from {digital}.", "success")
+    else:
+        flash(f"Added {title}. No streaming date announced yet.", "success")
+    return back_to("movies.index")
+
+
+@bp.route("/movie/<int:movie_id>/refresh", methods=["POST"])
+@login_required
+def refresh(movie_id):
+    try:
+        sync.sync_movie_availability(movie_id)
+        flash("Checked TMDB for a streaming date.", "success")
+    except tmdb.TmdbError as exc:
+        flash(str(exc), "error")
     return back_to("movies.index")
 
 

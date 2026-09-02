@@ -11,15 +11,30 @@ from . import db
 TODAY = "date('now')"
 
 
-def tracked_shows(include_archived=False):
-    where = "" if include_archived else " WHERE t.archived = 0"
+def tracked_shows(include_archived=False, shortlist=False, everything=False):
+    """Shows you follow. Set shortlist=True for the maybe list instead."""
+    clauses = []
+    if not everything:
+        clauses.append("t.shortlist = 1" if shortlist else "t.shortlist = 0")
+        if not include_archived:
+            clauses.append("t.archived = 0")
+    where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
     return db.query(
         f"""
-        SELECT s.*, t.added_at, t.archived, t.favourite
+        SELECT s.*, t.added_at, t.archived, t.favourite, t.shortlist
         FROM show s JOIN tracked_show t ON t.show_id = s.id
         {where}
         ORDER BY s.name COLLATE NOCASE
         """
+    )
+
+
+def show_list_state(show_id):
+    """None if untracked, otherwise the row saying which list it is on."""
+    return db.query(
+        "SELECT archived, favourite, shortlist FROM tracked_show WHERE show_id = ?",
+        (show_id,),
+        one=True,
     )
 
 
@@ -109,7 +124,8 @@ def upcoming(days=30, limit=None):
         SELECT e.*, s.name AS show_name, s.poster_path, s.network
         FROM episode e
         JOIN show s ON s.id = e.show_id
-        JOIN tracked_show t ON t.show_id = e.show_id AND t.archived = 0
+        JOIN tracked_show t ON t.show_id = e.show_id
+             AND t.archived = 0 AND t.shortlist = 0
         WHERE e.air_date IS NOT NULL AND e.air_date >= date('now') AND e.air_date <= ?
         ORDER BY e.air_date, s.name COLLATE NOCASE, e.season_number, e.episode_number
     """
@@ -125,7 +141,8 @@ def episodes_between(start_iso, end_iso):
                (w.episode_id IS NOT NULL) AS watched
         FROM episode e
         JOIN show s ON s.id = e.show_id
-        JOIN tracked_show t ON t.show_id = e.show_id AND t.archived = 0
+        JOIN tracked_show t ON t.show_id = e.show_id
+             AND t.archived = 0 AND t.shortlist = 0
         LEFT JOIN watched_episode w ON w.episode_id = e.id
         WHERE e.air_date IS NOT NULL AND e.air_date >= ? AND e.air_date <= ?
         ORDER BY e.air_date, s.name COLLATE NOCASE, e.season_number, e.episode_number
@@ -196,11 +213,50 @@ def movies(watched=None):
     )
 
 
+def provider_names(row):
+    value = row["providers"] if "providers" in row.keys() else None
+    return [line for line in (value or "").split("\n") if line]
+
+
+def is_streamable(row):
+    """True once a film can actually be watched at home."""
+    if provider_names(row):
+        return True
+    digital = row["digital_release"] if "digital_release" in row.keys() else None
+    return bool(digital and digital <= date.today().isoformat())
+
+
+def films_by_state():
+    """Films split into ready to watch, still waiting, and already seen."""
+    ready, waiting = [], []
+    for row in movies(watched=False):
+        (ready if is_streamable(row) else waiting).append(row)
+    waiting.sort(key=lambda r: (r["digital_release"] or "9999-99-99"))
+    return {"ready": ready, "waiting": waiting, "seen": movies(watched=True)}
+
+
+def films_arriving(days=60):
+    """Films whose streaming date falls inside the window."""
+    end = (date.today() + timedelta(days=days)).isoformat()
+    return db.query(
+        """
+        SELECT m.*, t.added_at FROM movie m
+        JOIN tracked_movie t ON t.movie_id = m.id
+        WHERE t.watched_at IS NULL
+          AND m.digital_release IS NOT NULL
+          AND m.digital_release >= date('now') AND m.digital_release <= ?
+        ORDER BY m.digital_release
+        """,
+        (end,),
+    )
+
+
 def dashboard_counts():
     row = db.query(
         """
         SELECT
-            (SELECT COUNT(*) FROM tracked_show WHERE archived = 0) AS shows,
+            (SELECT COUNT(*) FROM tracked_show WHERE archived = 0 AND shortlist = 0) AS shows,
+            (SELECT COUNT(*) FROM tracked_show WHERE shortlist = 1) AS maybe_shows,
             (SELECT COUNT(*) FROM watched_episode) AS episodes_watched,
             (SELECT COUNT(*) FROM tracked_movie WHERE watched_at IS NULL) AS movies_to_watch,
             (SELECT COALESCE(SUM(COALESCE(e.runtime, s.episode_runtime, 45)), 0)

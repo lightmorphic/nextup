@@ -51,6 +51,14 @@
                 <input type="hidden" name="next" value="{{ request.full_path }}">
                 <button class="btn btn-primary btn-small" type="submit">Add</button>
               </form>
+              {% if item.kind == 'tv' %}
+                <form method="post" action="{{ url_for('shows.track', show_id=item.id) }}" style="margin-top:8px">
+                  <input type="hidden" name="next" value="{{ request.full_path }}">
+                  <input type="hidden" name="list" value="maybe">
+                  <button class="btn btn-small" type="submit"
+                          title="Save it for later without it appearing in Next up">Maybe</button>
+                </form>
+              {% endif %}
             {% else %}
               <a class="btn btn-small" href="{{ target }}">Open</a>
             {% endif %}

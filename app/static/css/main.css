@@ -413,13 +413,17 @@ textarea { min-height: 120px; resize: vertical; }
 .show-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
 .show-hero p { max-width: 65ch; }
 
-.season { margin-top: 20px; }
+/* A closed season is just its own header, so a stack of them reads as a list
+   rather than five near-empty boxes. */
+.season { margin-top: 12px; padding: 0.5rem; }
 .season > summary {
   cursor: pointer; list-style: none;
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   padding: 12px 16px; border-radius: var(--radius);
-  background: var(--muted); font-weight: 600;
+  background: transparent; font-weight: 600;
 }
+.season > summary:hover { background: var(--muted); }
+.season[open] > summary { background: var(--muted); margin-bottom: 4px; }
 .season > summary::-webkit-details-marker { display: none; }
 .season > summary .spacer { margin-left: auto; }
 .season-chevron { width: 16px; height: 16px; transition: transform .15s ease; flex: none; }

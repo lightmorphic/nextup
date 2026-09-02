@@ -36,6 +36,16 @@ def index():
     return render_template("pages/shows.html", shows=shows, view=view)
 
 
+@bp.route("/maybe")
+@login_required
+def maybe():
+    """Shows you are curious about but are not following yet."""
+    shows = []
+    for row in queries.tracked_shows(shortlist=True):
+        shows.append({"show": row, "next_air": queries.next_airing(row["id"])})
+    return render_template("pages/maybe.html", shows=shows)
+
+
 @bp.route("/show/<int:show_id>")
 @login_required
 def detail(show_id):
@@ -51,15 +61,14 @@ def detail(show_id):
         if row is None:
             abort(404)
 
-    tracked_row = db.query(
-        "SELECT archived, favourite FROM tracked_show WHERE show_id = ?", (show_id,), one=True
-    )
+    tracked_row = queries.show_list_state(show_id)
     return render_template(
         "pages/show.html",
         show=row,
         tracked=tracked_row is not None,
         archived=bool(tracked_row and tracked_row["archived"]),
         show_favourite=bool(tracked_row and tracked_row["favourite"]),
+        shortlisted=bool(tracked_row and tracked_row["shortlist"]),
         seasons=queries.show_seasons(show_id),
         progress=queries.show_progress(show_id),
         next_up=queries.next_unwatched(show_id),
@@ -70,18 +79,43 @@ def detail(show_id):
 @bp.route("/show/<int:show_id>/track", methods=["POST"])
 @login_required
 def track(show_id):
+    """Add a show, either to the shows you follow or to the maybe list."""
+    wants_maybe = request.form.get("list") == "maybe"
     try:
         name = sync.sync_show(show_id)
     except tmdb.TmdbError as exc:
         flash(str(exc), "error")
         return back_to("main.search", q="")
     db.execute(
-        "INSERT INTO tracked_show (show_id, added_at) VALUES (?, ?)"
-        " ON CONFLICT(show_id) DO UPDATE SET archived = 0",
-        (show_id, _now()),
+        "INSERT INTO tracked_show (show_id, added_at, shortlist) VALUES (?, ?, ?)"
+        " ON CONFLICT(show_id) DO UPDATE SET archived = 0,"
+        " shortlist = excluded.shortlist",
+        (show_id, _now(), 1 if wants_maybe else 0),
     )
+    if wants_maybe:
+        flash(f"Put {name} on your maybe list.", "success")
+        return back_to("shows.maybe")
     flash(f"Added {name} to your shows.", "success")
     return back_to("shows.index")
+
+
+@bp.route("/show/<int:show_id>/maybe", methods=["POST"])
+@login_required
+def toggle_maybe(show_id):
+    """Move a show between the list you follow and the maybe list."""
+    row = queries.show_list_state(show_id)
+    if row is None:
+        abort(404)
+    moving_to_maybe = not row["shortlist"]
+    db.execute(
+        "UPDATE tracked_show SET shortlist = ?, archived = 0 WHERE show_id = ?",
+        (1 if moving_to_maybe else 0, show_id),
+    )
+    if moving_to_maybe:
+        flash("Moved to your maybe list. It will stay out of Next up.", "success")
+    else:
+        flash("Now following this show.", "success")
+    return back_to("shows.maybe" if moving_to_maybe else "shows.index")
 
 
 @bp.route("/show/<int:show_id>/untrack", methods=["POST"])
