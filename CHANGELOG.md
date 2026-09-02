@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.5.2] — 2026-09-02
+
+### Fixed
+- On a phone, the poster stayed beside the text on a show or film page, leaving
+  the synopsis in a column about 190 pixels wide. Below 520 pixels the poster
+  now sits above the text and the writing gets the full width.
+
 ## [0.5.1] — 2026-09-02
 
 ### Fixed
