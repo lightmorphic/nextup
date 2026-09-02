@@ -182,19 +182,50 @@ def save_mail():
 @login_required
 def save_mail_schedule():
     enabled = "1" if request.form.get("daily_email_enabled") else "0"
-    hour = (request.form.get("daily_email_hour") or "").strip()
-    if hour and (not hour.isdigit() or not 0 <= int(hour) <= 23):
-        flash("Pick an hour between 0 and 23.", "error")
+    hour = (request.form.get("send_hour") or "").strip()
+    minute = (request.form.get("send_minute") or "0").strip()
+    meridiem = (request.form.get("send_meridiem") or "").strip().lower()
+
+    if not hour.isdigit() or not minute.isdigit():
+        flash("Give the time as numbers.", "error")
         return redirect(url_for("settings.index"))
+    hour, minute = int(hour), int(minute)
+    if not 0 <= minute <= 59:
+        flash("Minutes have to be between 0 and 59.", "error")
+        return redirect(url_for("settings.index"))
+
+    if meridiem in {"am", "pm"}:
+        if not 1 <= hour <= 12:
+            flash("On a 12 hour clock the hour has to be between 1 and 12.", "error")
+            return redirect(url_for("settings.index"))
+        hour = hour % 12 + (12 if meridiem == "pm" else 0)
+    elif not 0 <= hour <= 23:
+        flash("The hour has to be between 0 and 23.", "error")
+        return redirect(url_for("settings.index"))
+
     if enabled == "1" and not mailer.is_configured():
         flash("Fill in the mail server details before switching the email on.", "error")
         return redirect(url_for("settings.index"))
+
+    when = f"{hour:02d}:{minute:02d}"
     secretstore.set("daily_email_enabled", enabled)
-    secretstore.set("daily_email_hour", hour or str(mailer.DEFAULT_HOUR))
-    flash(
-        "The morning email is on." if enabled == "1" else "The morning email is off.",
-        "success",
-    )
+    secretstore.set("daily_email_time", when)
+    secretstore.delete("daily_email_hour")
+
+    shown = mailer.format_time(mailer.parse_time(when))
+    if enabled == "1":
+        flash(f"The morning email will go out at {shown}.", "success")
+    else:
+        flash(f"Time saved as {shown}. The morning email is off.", "success")
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/clock", methods=["POST"])
+@login_required
+def save_clock():
+    """Switch between the 24 hour clock and am and pm."""
+    choice = request.form.get("clock_format", "24")
+    secretstore.set("clock_format", "12" if choice == "12" else "24")
     return redirect(url_for("settings.index"))
 
 

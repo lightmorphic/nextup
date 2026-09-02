@@ -809,3 +809,11 @@ select {
   padding-right: 36px;
 }
 input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; }
+
+/* Setting a time: hour, minute, and am or pm when that clock is chosen. */
+.field-label { display: block; font-size: 0.9375rem; font-weight: 600; margin-bottom: 6px; }
+.timepicker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.timepicker input[type="number"] { width: 5.5rem; text-align: center; }
+.timepicker select { width: auto; min-width: 5rem; }
+.timepicker-colon { font-weight: 700; font-size: 1.125rem; color: var(--muted-fg); }
+.clock-switch { display: inline-flex; }

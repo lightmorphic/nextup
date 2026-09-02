@@ -70,8 +70,16 @@
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Morning email</h2>
         <span class="spacer"></span>
+        <form method="post" action="{{ url_for('settings.save_clock') }}" class="clock-switch">
+          <input type="hidden" name="clock_format" value="{{ '24' if mail.clock == '12' else '12' }}">
+          <button class="btn btn-small btn-quiet" type="submit"
+                  title="{{ 'Switch to the 24 hour clock' if mail.clock == '12' else 'Switch to am and pm, if the 24 hour clock is not for you' }}"
+                  aria-label="{{ 'Switch to the 24 hour clock' if mail.clock == '12' else 'Switch to am and pm' }}">
+            {{ '12 hour' if mail.clock == '12' else '24 hour' }}
+          </button>
+        </form>
         {% if mail.enabled and mail_ready %}
-          <span class="badge badge-success">✓ On, at {{ '%02d'|format(mail.hour) }}:00</span>
+          <span class="badge badge-success">✓ On, at {{ mail.time_display }}</span>
         {% elif mail_ready %}
           <span class="badge">Set up, but off</span>
         {% else %}
@@ -153,21 +161,38 @@
 
       <form method="post" action="{{ url_for('settings.save_mail_schedule') }}"
             style="margin-top:22px; border-top:1px solid var(--border); padding-top:18px">
-        <div class="field-row">
-          <div class="field">
-            <label for="daily_email_hour">Send at</label>
-            <input id="daily_email_hour" name="daily_email_hour" type="number"
-                   min="0" max="23" step="1" value="{{ mail.hour }}">
-            <p class="hint">The hour of the morning, on the server's clock.</p>
+        <div class="field">
+          <span class="field-label" id="send-at-label">Send at</span>
+          <div class="timepicker" role="group" aria-labelledby="send-at-label">
+            <label class="visually-hidden" for="send_hour">Hour</label>
+            <input id="send_hour" name="send_hour" type="number" inputmode="numeric"
+                   min="{{ 1 if mail.clock == '12' else 0 }}"
+                   max="{{ 12 if mail.clock == '12' else 23 }}" step="1"
+                   value="{{ mail.hour_12 if mail.clock == '12' else mail.hour_24 }}">
+            <span class="timepicker-colon" aria-hidden="true">:</span>
+            <label class="visually-hidden" for="send_minute">Minute</label>
+            <input id="send_minute" name="send_minute" type="number" inputmode="numeric"
+                   min="0" max="59" step="1" value="{{ '%02d'|format(mail.minute) }}">
+            {% if mail.clock == '12' %}
+              <label class="visually-hidden" for="send_meridiem">Morning or afternoon</label>
+              <select id="send_meridiem" name="send_meridiem">
+                <option value="am" {% if mail.meridiem == 'am' %}selected{% endif %}>am</option>
+                <option value="pm" {% if mail.meridiem == 'pm' %}selected{% endif %}>pm</option>
+              </select>
+            {% endif %}
           </div>
-          <div class="field">
-            <label for="daily_email_enabled">Send it</label>
-            <label class="hint" style="font-weight:400; display:flex; gap:8px; align-items:center">
-              <input id="daily_email_enabled" name="daily_email_enabled" type="checkbox"
-                     value="1" style="width:auto" {% if mail.enabled %}checked{% endif %}>
-              Email me every morning
-            </label>
-          </div>
+          <p class="hint">
+            Any time you like, to the minute. Currently {{ mail.time_display }},
+            on the server's clock.
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="hint" style="font-weight:400; display:flex; gap:8px; align-items:center">
+            <input id="daily_email_enabled" name="daily_email_enabled" type="checkbox"
+                   value="1" style="width:auto" {% if mail.enabled %}checked{% endif %}>
+            Email me every morning
+          </label>
         </div>
         <button class="btn" type="submit">Save schedule</button>
         {% if mail.last_sent %}

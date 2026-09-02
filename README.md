@@ -30,7 +30,9 @@ and nothing phoning home.
   photographs, genres, the certificate, the tagline, who made it, which UK
   services carry it, and links to a trailer and IMDb.
 - **A morning email** — one short message a day listing what has become
-  watchable. Mail server details go in the Settings page, password encrypted.
+  watchable, at any time you choose, to the minute. Mail server details go in
+  the Settings page, password encrypted. A switch turns the clock from 24 hour
+  to am and pm.
 - **A watchable-after setting** — something that airs at eleven at night is not
   really available until the next day, so Nextup waits however long you say
   before it counts. This governs Next up, the films list and the email alike.
