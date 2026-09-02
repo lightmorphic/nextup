@@ -1,0 +1,58 @@
+{% extends 'layout/base.html' %}
+{% block title %}Films — Nextup{% endblock %}
+{% block body %}
+<div class="page-head">
+  <div>
+    <h1>Films</h1>
+    <p>{{ to_watch|length }} to watch, {{ watched|length }} seen.</p>
+  </div>
+  <span class="spacer"></span>
+  <a class="btn btn-primary" href="{{ url_for('main.search') }}">Add a film</a>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2 style="font-size:1.25rem">To watch</h2></div>
+  {% if to_watch %}
+    <div class="show-grid">
+      {% for film in to_watch %}
+        <article class="show-tile">
+          <a class="poster" href="{{ url_for('movies.detail', movie_id=film.id) }}">
+            {% if film.poster_path %}
+              <img src="{{ url_for('images.poster', size='w342', tmdb_path=film.poster_path.lstrip('/')) }}"
+                   alt="{{ film.title }}" loading="lazy">
+            {% else %}<span class="poster-empty">{{ film.title }}</span>{% endif %}
+          </a>
+          <a class="show-tile-name" href="{{ url_for('movies.detail', movie_id=film.id) }}">{{ film.title }}</a>
+          <div class="show-tile-meta">{{ film.release_date|year }}{% if film.runtime %} · {{ film.runtime }} min{% endif %}</div>
+          <form method="post" action="{{ url_for('movies.watched', movie_id=film.id) }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}">
+            <button class="btn btn-small btn-primary btn-block" type="submit">Mark watched</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="subtle" style="margin:0">Nothing lined up. Search for a film to add one.</p>
+  {% endif %}
+</section>
+
+{% if watched %}
+<section class="panel">
+  <div class="panel-head"><h2 style="font-size:1.25rem">Seen</h2></div>
+  <div class="show-grid">
+    {% for film in watched %}
+      <article class="show-tile">
+        <a class="poster" href="{{ url_for('movies.detail', movie_id=film.id) }}">
+          {% if film.poster_path %}
+            <img src="{{ url_for('images.poster', size='w342', tmdb_path=film.poster_path.lstrip('/')) }}"
+                 alt="{{ film.title }}" loading="lazy">
+          {% else %}<span class="poster-empty">{{ film.title }}</span>{% endif %}
+        </a>
+        <a class="show-tile-name" href="{{ url_for('movies.detail', movie_id=film.id) }}">{{ film.title }}</a>
+        <div class="show-tile-badges"><span class="badge badge-success">✓ Watched</span></div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
