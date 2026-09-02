@@ -2,6 +2,27 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.7.0] — 2026-09-02
+
+### Added
+- The morning email can go out at **any time of day, to the minute**, rather
+  than on the hour. Twelve minutes past seven is a perfectly good answer.
+- A small switch beside the heading turns the time controls from the 24 hour
+  clock to **am and pm**, for anyone who would rather read it that way. The 24
+  hour clock stays the default, and the choice only changes what is shown; the
+  time is stored the same way either way.
+- The email has been rebuilt: the Nextup name at the top, the date it covers,
+  television and films in separate sections with the channel or the streaming
+  service beside each, and a Lightmorphic credit at the foot linking to
+  lightmorphic.com. Built from tables and inline styles, which is what mail
+  clients understand, and it loads nothing from anywhere else.
+
+### Changed
+- The scheduler now checks every two minutes rather than every ten, so a time
+  like 07:12 is not a quarter of an hour late.
+- An older install that stored only an hour is read and converted on the way
+  past, so nothing needs re-entering.
+
 ## [0.6.0] — 2026-09-02
 
 ### Added

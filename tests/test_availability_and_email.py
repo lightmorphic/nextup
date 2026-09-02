@@ -115,7 +115,10 @@ def test_the_digest_names_what_is_ready(app):
         assert "1 episode" in subject and "1 film" in subject
         assert "Late Night Show S01E01" in text
         assert "A Late Film" in text
-        assert "<li" in html
+        # The email is built from tables, which is what mail clients render.
+        assert "Late Night Show" in html
+        assert "A Late Film" in html
+        assert "<table" in html
 
 
 def test_the_password_is_stored_encrypted_and_never_handed_back(app):
