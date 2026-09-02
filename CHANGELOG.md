@@ -2,6 +2,17 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.7.1] — 2026-09-02
+
+### Changed
+- The clock choice is now a toggle switch reading "12 hours" and "24 hours",
+  sitting beside the time rather than up beside the heading, since the time is
+  the only thing it changes. It applies as soon as it is pressed, and still
+  works without scripting.
+- Hours and minutes are dropdowns rather than number boxes, so the 24 hour
+  clock reads 08 and 09 rather than 8 and 9. A number box strips a leading
+  zero, so it could never show them properly.
+
 ## [0.7.0] — 2026-09-02
 
 ### Added

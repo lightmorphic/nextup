@@ -70,14 +70,6 @@
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Morning email</h2>
         <span class="spacer"></span>
-        <form method="post" action="{{ url_for('settings.save_clock') }}" class="clock-switch">
-          <input type="hidden" name="clock_format" value="{{ '24' if mail.clock == '12' else '12' }}">
-          <button class="btn btn-small btn-quiet" type="submit"
-                  title="{{ 'Switch to the 24 hour clock' if mail.clock == '12' else 'Switch to am and pm, if the 24 hour clock is not for you' }}"
-                  aria-label="{{ 'Switch to the 24 hour clock' if mail.clock == '12' else 'Switch to am and pm' }}">
-            {{ '12 hour' if mail.clock == '12' else '24 hour' }}
-          </button>
-        </form>
         {% if mail.enabled and mail_ready %}
           <span class="badge badge-success">✓ On, at {{ mail.time_display }}</span>
         {% elif mail_ready %}
@@ -163,23 +155,52 @@
             style="margin-top:22px; border-top:1px solid var(--border); padding-top:18px">
         <div class="field">
           <span class="field-label" id="send-at-label">Send at</span>
-          <div class="timepicker" role="group" aria-labelledby="send-at-label">
-            <label class="visually-hidden" for="send_hour">Hour</label>
-            <input id="send_hour" name="send_hour" type="number" inputmode="numeric"
-                   min="{{ 1 if mail.clock == '12' else 0 }}"
-                   max="{{ 12 if mail.clock == '12' else 23 }}" step="1"
-                   value="{{ mail.hour_12 if mail.clock == '12' else mail.hour_24 }}">
-            <span class="timepicker-colon" aria-hidden="true">:</span>
-            <label class="visually-hidden" for="send_minute">Minute</label>
-            <input id="send_minute" name="send_minute" type="number" inputmode="numeric"
-                   min="0" max="59" step="1" value="{{ '%02d'|format(mail.minute) }}">
-            {% if mail.clock == '12' %}
-              <label class="visually-hidden" for="send_meridiem">Morning or afternoon</label>
-              <select id="send_meridiem" name="send_meridiem">
-                <option value="am" {% if mail.meridiem == 'am' %}selected{% endif %}>am</option>
-                <option value="pm" {% if mail.meridiem == 'pm' %}selected{% endif %}>pm</option>
+          <div class="timerow">
+            <div class="timepicker" role="group" aria-labelledby="send-at-label">
+              <label class="visually-hidden" for="send_hour">Hour</label>
+              <select id="send_hour" name="send_hour">
+                {% if mail.clock == '12' %}
+                  {% for h in range(1, 13) %}
+                    <option value="{{ h }}" {% if h == mail.hour_12 %}selected{% endif %}>{{ h }}</option>
+                  {% endfor %}
+                {% else %}
+                  {% for h in range(0, 24) %}
+                    <option value="{{ h }}" {% if h == mail.hour_24 %}selected{% endif %}>{{ '%02d'|format(h) }}</option>
+                  {% endfor %}
+                {% endif %}
               </select>
-            {% endif %}
+              <span class="timepicker-colon" aria-hidden="true">:</span>
+              <label class="visually-hidden" for="send_minute">Minute</label>
+              <select id="send_minute" name="send_minute">
+                {% for m in range(0, 60) %}
+                  <option value="{{ m }}" {% if m == mail.minute %}selected{% endif %}>{{ '%02d'|format(m) }}</option>
+                {% endfor %}
+              </select>
+              {% if mail.clock == '12' %}
+                <label class="visually-hidden" for="send_meridiem">Morning or afternoon</label>
+                <select id="send_meridiem" name="send_meridiem">
+                  <option value="am" {% if mail.meridiem == 'am' %}selected{% endif %}>am</option>
+                  <option value="pm" {% if mail.meridiem == 'pm' %}selected{% endif %}>pm</option>
+                </select>
+              {% endif %}
+            </div>
+
+            {# Sits beside the time because the time is the only thing it changes.
+               The inputs belong to the small form further down the page, which is
+               what lets them stand here without nesting one form inside another. #}
+            <div class="clock-toggle" role="radiogroup" aria-label="Clock">
+              <label>
+                <input type="radio" name="clock_format" value="12" form="clock-form"
+                       {% if mail.clock == '12' %}checked{% endif %}>
+                <span>12 hours</span>
+              </label>
+              <label>
+                <input type="radio" name="clock_format" value="24" form="clock-form"
+                       {% if mail.clock == '24' %}checked{% endif %}>
+                <span>24 hours</span>
+              </label>
+              <button class="btn btn-small clock-toggle-go" type="submit" form="clock-form">Change</button>
+            </div>
           </div>
           <p class="hint">
             Any time you like, to the minute. Currently {{ mail.time_display }},
@@ -199,6 +220,7 @@
           <p class="hint" style="margin-top:10px">Last sent {{ mail.last_sent }}.</p>
         {% endif %}
       </form>
+      <form id="clock-form" method="post" action="{{ url_for('settings.save_clock') }}"></form>
     </section>
 
     <section class="panel">

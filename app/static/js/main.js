@@ -35,6 +35,20 @@
     });
   });
 
+  // The clock switch applies itself. Its button is the fallback for anyone
+  // without scripting, so it is only removed once we know we can replace it.
+  var clockToggle = document.querySelector('.clock-toggle');
+  if (clockToggle) {
+    var go = clockToggle.querySelector('.clock-toggle-go');
+    if (go) { go.hidden = true; }
+    clockToggle.addEventListener('change', function (event) {
+      if (event.target && event.target.name === 'clock_format') {
+        var form = document.getElementById('clock-form');
+        if (form) { form.submit(); }
+      }
+    });
+  }
+
   // "/" focuses the search box, as long as you are not already typing.
   document.addEventListener('keydown', function (event) {
     if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) { return; }
