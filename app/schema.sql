@@ -78,7 +78,18 @@ CREATE TABLE IF NOT EXISTS movie (
 CREATE TABLE IF NOT EXISTS tracked_movie (
     movie_id    INTEGER PRIMARY KEY REFERENCES movie(id) ON DELETE CASCADE,
     added_at    TEXT NOT NULL,
-    watched_at  TEXT
+    watched_at  TEXT,
+    -- As with shows: a film you like the look of but have not committed to.
+    shortlist   INTEGER NOT NULL DEFAULT 0
+);
+
+-- Things you said no to on the Discover pages. They stay out of Discover but
+-- still turn up in a search, so nothing is ever lost for good.
+CREATE TABLE IF NOT EXISTS dismissed (
+    kind         TEXT NOT NULL CHECK (kind IN ('tv', 'movie')),
+    item_id      INTEGER NOT NULL,
+    dismissed_at TEXT NOT NULL,
+    PRIMARY KEY (kind, item_id)
 );
 
 CREATE TABLE IF NOT EXISTS sync_run (

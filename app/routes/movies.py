@@ -39,13 +39,12 @@ def detail(movie_id):
         row = db.query("SELECT * FROM movie WHERE id = ?", (movie_id,), one=True)
         if row is None:
             abort(404)
-    tracked = db.query(
-        "SELECT watched_at FROM tracked_movie WHERE movie_id = ?", (movie_id,), one=True
-    )
+    tracked = queries.movie_list_state(movie_id)
     return render_template(
         "pages/movie.html",
         movie=row,
         tracked=tracked,
+        shortlisted=bool(tracked and tracked["shortlist"]),
         providers=queries.provider_names(row),
         streamable=queries.is_streamable(row),
     )
@@ -95,6 +94,22 @@ def refresh(movie_id):
 def untrack(movie_id):
     db.execute("DELETE FROM tracked_movie WHERE movie_id = ?", (movie_id,))
     return back_to("movies.index")
+
+
+@bp.route("/movie/<int:movie_id>/maybe", methods=["POST"])
+@login_required
+def toggle_maybe(movie_id):
+    """Move a film between your films and the maybe list."""
+    row = queries.movie_list_state(movie_id)
+    if row is None:
+        abort(404)
+    moving = not row["shortlist"]
+    db.execute(
+        "UPDATE tracked_movie SET shortlist = ? WHERE movie_id = ?",
+        (1 if moving else 0, movie_id),
+    )
+    flash("Moved to your maybe list." if moving else "Moved to your films.", "success")
+    return back_to("shows.maybe" if moving else "movies.index")
 
 
 @bp.route("/movie/<int:movie_id>/watched", methods=["POST"])

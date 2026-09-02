@@ -43,7 +43,9 @@ def maybe():
     shows = []
     for row in queries.tracked_shows(shortlist=True):
         shows.append({"show": row, "next_air": queries.next_airing(row["id"])})
-    return render_template("pages/maybe.html", shows=shows)
+    return render_template(
+        "pages/maybe.html", shows=shows, films=queries.movies(shortlist=True)
+    )
 
 
 @bp.route("/show/<int:show_id>")
@@ -162,6 +164,60 @@ def refresh(show_id):
     except tmdb.TmdbError as exc:
         flash(str(exc), "error")
     return back_to("shows.detail", show_id=show_id)
+
+
+@bp.route("/episode/<int:episode_id>")
+@login_required
+def episode(episode_id):
+    """Everything known about one episode.
+
+    Nearly all of it is already in the database. The guest cast and the
+    director are the exception, so those are fetched live and simply left out
+    if TMDB cannot be reached.
+    """
+    row = db.query(
+        "SELECT e.*, (w.episode_id IS NOT NULL) AS watched FROM episode e"
+        " LEFT JOIN watched_episode w ON w.episode_id = e.id WHERE e.id = ?",
+        (episode_id,),
+        one=True,
+    )
+    if row is None:
+        abort(404)
+    show = db.query("SELECT * FROM show WHERE id = ?", (row["show_id"],), one=True)
+    if show is None:
+        abort(404)
+
+    guests, crew, rating = [], [], None
+    try:
+        payload = tmdb.episode(row["show_id"], row["season_number"], row["episode_number"])
+        guests = [
+            {"name": person.get("name"), "role": person.get("character")}
+            for person in (payload.get("guest_stars") or [])[:12]
+            if person.get("name")
+        ]
+        crew = [
+            {"name": person.get("name"), "role": person.get("job")}
+            for person in (payload.get("crew") or [])
+            if person.get("job") in {"Director", "Writer"}
+        ][:6]
+        rating = payload.get("vote_average") or None
+    except tmdb.TmdbError:
+        pass
+
+    previous, following = queries.episode_neighbours(
+        row["show_id"], row["season_number"], row["episode_number"]
+    )
+    return render_template(
+        "pages/episode.html",
+        show=show,
+        episode=row,
+        tracked=queries.is_tracked(row["show_id"]),
+        guests=guests,
+        crew=crew,
+        rating=rating,
+        previous=previous,
+        following=following,
+    )
 
 
 @bp.route("/episode/<int:episode_id>/watch", methods=["POST"])
