@@ -102,6 +102,70 @@ def movie(movie_id):
     return _get(f"/movie/{movie_id}")
 
 
+# TMDB release types. 4 is the digital release, which for anyone who does not
+# go to the cinema is the date that actually matters.
+RELEASE_DIGITAL = 4
+RELEASE_PHYSICAL = 5
+RELEASE_TV = 6
+
+# Preferred country order when reading dates and services.
+COUNTRIES = ("GB", "IE", "US")
+
+
+def movie_release_dates(movie_id):
+    return _get(f"/movie/{movie_id}/release_dates")
+
+
+def movie_providers(movie_id):
+    return _get(f"/movie/{movie_id}/watch/providers")
+
+
+def digital_release_date(payload):
+    """The earliest date a film becomes watchable at home.
+
+    Preference goes to a UK date. Failing that, Ireland or the US, and failing
+    that the earliest digital date anywhere, which at least gives a hint.
+    """
+    by_country = {}
+    for entry in payload.get("results", []):
+        code = entry.get("iso_3166_1")
+        dates = []
+        for release in entry.get("release_dates", []):
+            if release.get("type") in (RELEASE_DIGITAL, RELEASE_PHYSICAL, RELEASE_TV):
+                value = (release.get("release_date") or "")[:10]
+                if value:
+                    dates.append(value)
+        if dates:
+            by_country[code] = min(dates)
+
+    for code in COUNTRIES:
+        if code in by_country:
+            return by_country[code]
+    return min(by_country.values()) if by_country else None
+
+
+def uk_providers(payload):
+    """Which services carry the film, and the page listing them.
+
+    Rental and purchase are left out on purpose: the question is what you can
+    put on tonight without paying again.
+    """
+    results = payload.get("results", {})
+    for code in COUNTRIES:
+        country = results.get(code)
+        if not country:
+            continue
+        names = []
+        for key in ("flatrate", "free", "ads"):
+            for provider in country.get(key, []):
+                name = provider.get("provider_name")
+                if name and name not in names:
+                    names.append(name)
+        if names:
+            return names, country.get("link")
+    return [], None
+
+
 def trending_tv():
     return _get("/trending/tv/week").get("results", [])
 

@@ -91,6 +91,7 @@ def upcoming_view():
     return render_template(
         "pages/upcoming.html",
         grouped=sorted(grouped.items()),
+        films=queries.films_arriving(days=days),
         days=days,
     )
 
@@ -113,7 +114,7 @@ def search():
         except tmdb.TmdbError as exc:
             error = str(exc)
 
-    tracked_tv = {row["id"] for row in queries.tracked_shows(include_archived=True)}
+    tracked_tv = {row["id"] for row in queries.tracked_shows(everything=True)}
     tracked_film = {row["id"] for row in queries.movies()}
     for item in results:
         item["tracked"] = (

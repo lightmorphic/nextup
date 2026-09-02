@@ -15,6 +15,30 @@
   </nav>
 </div>
 
+{% if films %}
+<section class="panel" style="margin-bottom:22px">
+  <div class="panel-head">
+    <h2 style="font-size:1.25rem">Films landing on streaming</h2>
+  </div>
+  <div class="schedule">
+    {% for film in films %}
+      <div class="schedule-row">
+        <a class="poster" href="{{ url_for('movies.detail', movie_id=film.id) }}" tabindex="-1" aria-hidden="true">
+          {% if film.poster_path %}
+            <img src="{{ url_for('images.poster', size='w92', tmdb_path=film.poster_path.lstrip('/')) }}" alt="" loading="lazy">
+          {% else %}<span class="poster-empty"></span>{% endif %}
+        </a>
+        <div style="min-width:0">
+          <a class="show-tile-name" href="{{ url_for('movies.detail', movie_id=film.id) }}">{{ film.title }}</a>
+          <div class="ep-date">{{ film.digital_release|relative_day }} · {{ film.digital_release|pretty_date }}</div>
+        </div>
+        <span class="badge badge-accent">Film</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 {% if grouped %}
   <div class="schedule">
     {% for day, episodes in grouped %}
@@ -37,7 +61,7 @@
       </section>
     {% endfor %}
   </div>
-{% else %}
+{% elif not films %}
   <div class="panel">
     <div class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"

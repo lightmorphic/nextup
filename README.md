@@ -14,11 +14,17 @@ and nothing phoning home.
   season at once, or "up to here" for catching up.
 - **Calendar** — a month at a glance of when your shows air.
 - **Coming soon** — the next 14 to 180 days as a plain list.
-- **Films** — a to-watch list and a seen list.
+- **Maybe** — shows you fancy the look of but are not following. They stay out
+  of Next up and the calendar until you decide to watch one.
+- **Films** — split into ready to watch, coming to streaming, and seen. Each
+  film shows the date it reaches home viewing and which UK services carry it,
+  which is more use than a cinema release date if you do not go to the cinema.
 - **Search** — shows and films from TMDB, added in one click.
 
 Data comes from [TMDB](https://www.themoviedb.org/). Tracked shows refresh
-automatically every 12 hours; finished shows are checked far less often.
+automatically every 12 hours; finished shows are checked far less often. Film
+availability is re-checked every few days, and streaming service listings come
+from JustWatch by way of TMDB.
 
 ## Posters stay on your server
 

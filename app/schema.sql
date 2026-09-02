@@ -47,7 +47,10 @@ CREATE TABLE IF NOT EXISTS tracked_show (
     show_id     INTEGER PRIMARY KEY REFERENCES show(id) ON DELETE CASCADE,
     added_at    TEXT NOT NULL,
     archived    INTEGER NOT NULL DEFAULT 0,
-    favourite   INTEGER NOT NULL DEFAULT 0
+    favourite   INTEGER NOT NULL DEFAULT 0,
+    -- A show on the maybe list is one you are curious about but not following.
+    -- It stays out of Next up, the calendar and the coming-soon list.
+    shortlist   INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS watched_episode (
@@ -58,14 +61,18 @@ CREATE TABLE IF NOT EXISTS watched_episode (
 CREATE INDEX IF NOT EXISTS idx_watched_show ON watched_episode (show_id);
 
 CREATE TABLE IF NOT EXISTS movie (
-    id           INTEGER PRIMARY KEY,             -- TMDB movie id
-    title        TEXT NOT NULL,
-    overview     TEXT,
-    poster_path  TEXT,
-    release_date TEXT,
-    runtime      INTEGER,
-    vote_average REAL,
-    synced_at    TEXT
+    id                   INTEGER PRIMARY KEY,     -- TMDB movie id
+    title                TEXT NOT NULL,
+    overview             TEXT,
+    poster_path          TEXT,
+    release_date         TEXT,   -- first release anywhere, usually the cinema
+    runtime              INTEGER,
+    vote_average         REAL,
+    digital_release      TEXT,   -- the date it lands on streaming or download
+    providers            TEXT,   -- UK streaming services, one per line
+    provider_link        TEXT,   -- TMDB's "where to watch" page
+    providers_checked_at TEXT,
+    synced_at            TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tracked_movie (

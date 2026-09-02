@@ -17,7 +17,8 @@
         {% if show.network %}<span class="badge">{{ show.network }}</span>{% endif %}
         {% if show.status %}<span class="badge">{{ show.status }}</span>{% endif %}
         {% if show.vote_average %}<span class="badge">★ {{ '%.1f'|format(show.vote_average) }}</span>{% endif %}
-        {% if tracked %}
+        {% if shortlisted %}<span class="badge badge-accent">On your maybe list</span>{% endif %}
+        {% if tracked and not shortlisted %}
           {% if progress.remaining %}
             <span class="badge badge-warning">! {{ progress.remaining }} to watch</span>
           {% elif progress.complete %}
@@ -28,7 +29,7 @@
 
       {% if show.overview %}<p>{{ show.overview }}</p>{% endif %}
 
-      {% if tracked %}
+      {% if tracked and not shortlisted %}
         <div class="progress" style="max-width: 420px;" role="img"
              aria-label="{{ progress.watched }} of {{ progress.aired }} aired episodes watched">
           <span style="width: {{ progress.percent }}%"></span>
@@ -53,6 +54,12 @@
               <button class="btn btn-primary" type="submit">Mark {{ next_up|episode_code }} watched</button>
             </form>
           {% endif %}
+          <form method="post" action="{{ url_for('shows.toggle_maybe', show_id=show.id) }}">
+            <button class="btn" type="submit"
+                    title="{{ 'Follow this show properly, so it appears in Next up' if shortlisted else 'Park this on the maybe list, out of Next up and the calendar' }}">
+              {{ 'Start watching' if shortlisted else 'Move to maybe' }}
+            </button>
+          </form>
           <form method="post" action="{{ url_for('shows.favourite', show_id=show.id) }}">
             <button class="btn" type="submit">{{ '★ Favourite' if not show_favourite else '☆ Unfavourite' }}</button>
           </form>
@@ -73,6 +80,11 @@
         {% else %}
           <form method="post" action="{{ url_for('shows.track', show_id=show.id) }}">
             <button class="btn btn-primary" type="submit">Track this show</button>
+          </form>
+          <form method="post" action="{{ url_for('shows.track', show_id=show.id) }}">
+            <input type="hidden" name="list" value="maybe">
+            <button class="btn" type="submit"
+                    title="Save it for later without it appearing in Next up">Add to maybe</button>
           </form>
         {% endif %}
       </div>

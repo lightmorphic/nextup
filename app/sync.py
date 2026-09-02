@@ -147,6 +147,54 @@ def upsert_movie(payload):
     )
 
 
+def sync_movie_availability(movie_id):
+    """Refresh when a film reaches streaming, and which services carry it."""
+    digital = None
+    names, link = [], None
+    try:
+        digital = tmdb.digital_release_date(tmdb.movie_release_dates(movie_id))
+    except tmdb.TmdbError:
+        pass
+    try:
+        names, link = tmdb.uk_providers(tmdb.movie_providers(movie_id))
+    except tmdb.TmdbError:
+        pass
+
+    db.execute(
+        "UPDATE movie SET digital_release = COALESCE(?, digital_release),"
+        " providers = ?, provider_link = ?, providers_checked_at = ?"
+        " WHERE id = ?",
+        (digital, "\n".join(names) if names else None, link, now_iso(), movie_id),
+    )
+    return digital, names
+
+
+def sync_all_movies(force=False):
+    """Refresh availability for every film still waiting to be watched."""
+    rows = db.query(
+        "SELECT m.id, m.providers_checked_at FROM movie m"
+        " JOIN tracked_movie t ON t.movie_id = m.id"
+        " WHERE t.watched_at IS NULL"
+    )
+    done = 0
+    for row in rows:
+        if not force and row["providers_checked_at"]:
+            try:
+                last = datetime.fromisoformat(row["providers_checked_at"])
+                if last.tzinfo is None:
+                    last = last.replace(tzinfo=timezone.utc)
+                if datetime.now(timezone.utc) - last < timedelta(days=3):
+                    continue
+            except ValueError:
+                pass
+        try:
+            sync_movie_availability(row["id"])
+            done += 1
+        except tmdb.TmdbError:
+            continue
+    return done
+
+
 def _needs_refresh(row, force):
     if force or not row["synced_at"]:
         return True
@@ -177,7 +225,7 @@ def sync_all(force=False):
         rows = db.query(
             "SELECT s.id, s.name, s.status, s.synced_at FROM show s"
             " JOIN tracked_show t ON t.show_id = s.id"
-            " WHERE t.archived = 0"
+            " WHERE t.archived = 0 AND t.shortlist = 0"
         )
         for row in rows:
             if not _needs_refresh(row, force):
@@ -188,6 +236,11 @@ def sync_all(force=False):
                 done += 1
             except tmdb.TmdbError as exc:
                 errors.append(f"{row['name']}: {exc}")
+        try:
+            sync_all_movies(force=force)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"Films: {exc}")
+
         db.execute(
             "UPDATE sync_run SET finished_at = ?, shows_done = ?, status = ?,"
             " message = ? WHERE id = ?",

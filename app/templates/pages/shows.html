@@ -11,6 +11,7 @@
     <a href="{{ url_for('shows.index') }}" {% if view == 'active' %}class="current" aria-current="page"{% endif %}>All</a>
     <a href="{{ url_for('shows.index', view='behind') }}" {% if view == 'behind' %}class="current" aria-current="page"{% endif %}>Behind</a>
     <a href="{{ url_for('shows.index', view='archived') }}" {% if view == 'archived' %}class="current" aria-current="page"{% endif %}>Archived</a>
+    <a href="{{ url_for('shows.maybe') }}">Maybe</a>
   </nav>
   <a class="btn btn-primary" href="{{ url_for('main.search') }}">Add a show</a>
 </div>
