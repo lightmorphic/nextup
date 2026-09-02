@@ -25,6 +25,9 @@ and nothing phoning home.
   or out of sight.
 - **Episode pages** — the still, synopsis, air date, runtime, guest cast and
   director for any episode, with links either side of it.
+- **Detail worth reading** — show and film pages carry the cast with
+  photographs, genres, the certificate, the tagline, who made it, which UK
+  services carry it, and links to a trailer and IMDb.
 - **Search** — shows and films from TMDB, added in one click.
 
 Data comes from [TMDB](https://www.themoviedb.org/). Tracked shows refresh

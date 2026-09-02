@@ -17,7 +17,7 @@ from ..tmdb import IMAGE_BASE
 bp = Blueprint("images", __name__)
 
 ALLOWED_SIZES = {"w92", "w154", "w185", "w300", "w342", "w500", "w780", "original"}
-PATH_RE = re.compile(r"^/?[A-Za-z0-9]+\.(jpg|png|svg)$")
+PATH_RE = re.compile(r"^/?[A-Za-z0-9_-]+\.(jpg|png|svg|webp)$")
 
 
 @bp.route("/img/<size>/<path:tmdb_path>")
