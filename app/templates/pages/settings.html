@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% import 'partials/_note.html' as n %}
 {% block title %}Settings — Nextup{% endblock %}
 {% block body %}
 <div class="page-head">
@@ -10,7 +11,7 @@
 
 <div class="split">
   <div>
-    <section class="panel">
+    <section class="panel" id="tmdb">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">TMDB key</h2>
         <span class="spacer"></span>
@@ -40,9 +41,10 @@
           {% endif %}
         </div>
       </form>
+      {{ n.notes_for(notes, "tmdb") }}
     </section>
 
-    <section class="panel">
+    <section class="panel" id="availability">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">When something counts as watchable</h2>
       </div>
@@ -64,9 +66,10 @@
         </div>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
+      {{ n.notes_for(notes, "availability") }}
     </section>
 
-    <section class="panel">
+    <section class="panel" id="mail">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Morning email</h2>
         <span class="spacer"></span>
@@ -221,9 +224,10 @@
         {% endif %}
       </form>
       <form id="clock-form" method="post" action="{{ url_for('settings.save_clock') }}"></form>
+      {{ n.notes_for(notes, "mail") }}
     </section>
 
-    <section class="panel">
+    <section class="panel" id="account">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Sign in</h2>
         {% if default_password %}<span class="badge badge-warning">! Starter password</span>{% endif %}
@@ -246,11 +250,12 @@
         <p class="hint" style="margin-bottom:14px">At least 8 characters. Leave both blank to keep the current one.</p>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
+      {{ n.notes_for(notes, "account") }}
     </section>
   </div>
 
   <aside>
-    <section class="panel">
+    <section class="panel" id="sync">
       <div class="panel-head"><h3>Refresh from TMDB</h3></div>
       <p class="hint" style="margin-top:0">
         Runs on its own every 12 hours. Shows that have ended are checked far less often.
@@ -267,9 +272,10 @@
           {{ 'Refresh running…' if syncing else 'Refresh everything now' }}
         </button>
       </form>
+      {{ n.notes_for(notes, "sync") }}
     </section>
 
-    <section class="panel">
+    <section class="panel" id="accent">
       <div class="panel-head"><h3>Accent colour</h3></div>
       <form method="post" action="{{ url_for('settings.save_accent') }}">
         <div class="swatches">
@@ -287,6 +293,7 @@
         </div>
         <button class="btn btn-block" type="submit" style="margin-top:14px">Apply colour</button>
       </form>
+      {{ n.notes_for(notes, "accent") }}
     </section>
 
     <section class="panel">

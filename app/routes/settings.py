@@ -7,6 +7,18 @@ bp = Blueprint("settings", __name__)
 
 # "brand" means no data-accent attribute at all, which leaves the stylesheet
 # on the brand yellow defined in :root.
+
+def notify(panel, message, kind="success"):
+    """Say what happened beside the control that did it.
+
+    The message is tagged with its panel so the page can put it there, and the
+    redirect carries an anchor so the browser returns to that panel rather than
+    throwing you back to the top of the page to read a banner.
+    """
+    flash(message, f"{kind}:{panel}")
+    return redirect(url_for("settings.index", _anchor=panel))
+
+
 ACCENTS = [
     ("brand", "Brand yellow", "#fbc711"),
     ("red", "Red", "#f34236"), ("pink", "Pink", "#e8207e"),
@@ -51,24 +63,20 @@ def index():
 def save_tmdb():
     key = (request.form.get("tmdb_api_key") or "").strip()
     if not key:
-        flash("Paste a key first.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("tmdb", "Paste a key first.", "error")
     try:
         tmdb.verify_key(key)
     except tmdb.TmdbError as exc:
-        flash(str(exc), "error")
-        return redirect(url_for("settings.index"))
+        return notify("tmdb", str(exc), "error")
     secretstore.set("tmdb_api_key", key, encrypted=True)
-    flash("Key checked against TMDB and saved, encrypted.", "success")
-    return redirect(url_for("settings.index"))
+    return notify("tmdb", "Key checked against TMDB and saved, encrypted.", "success")
 
 
 @bp.route("/settings/tmdb/clear", methods=["POST"])
 @login_required
 def clear_tmdb():
     secretstore.delete("tmdb_api_key")
-    flash("Key removed.", "success")
-    return redirect(url_for("settings.index"))
+    return notify("tmdb", "Key removed.", "success")
 
 
 @bp.route("/settings/account", methods=["POST"])
@@ -82,16 +90,14 @@ def save_account():
         set_username(username)
     if password or confirm:
         if password != confirm:
-            flash("The two passwords did not match.", "error")
-            return redirect(url_for("settings.index"))
+            return notify("account", "The two passwords did not match.", "error")
         if len(password) < 8:
-            flash("Use at least 8 characters.", "error")
-            return redirect(url_for("settings.index"))
+            return notify("account", "Use at least 8 characters.", "error")
         set_password(password)
-        flash("Sign-in details updated.", "success")
-    elif username:
-        flash("Username updated.", "success")
-    return redirect(url_for("settings.index"))
+        return notify("account", "Sign-in details updated.", "success")
+    if username:
+        return notify("account", "Username updated.", "success")
+    return redirect(url_for("settings.index", _anchor="account"))
 
 
 @bp.route("/settings/accent", methods=["POST"])
@@ -100,21 +106,20 @@ def save_accent():
     accent = request.form.get("accent", "brand")
     if accent in {row[0] for row in ACCENTS}:
         secretstore.set("accent", accent)
-    return redirect(url_for("settings.index"))
+    return redirect(url_for("settings.index", _anchor="accent"))
 
 
 @bp.route("/settings/sync", methods=["POST"])
 @login_required
 def run_sync():
     if not secretstore.has("tmdb_api_key"):
-        flash("Add a TMDB key first.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("sync", "Add a TMDB key first.", "error")
     done, skipped, errors = sync.sync_all(force=True)
     if errors:
-        flash(f"Refreshed {done}, but hit problems: {errors[0]}", "error")
-    else:
-        flash(f"Refreshed {done} show{'s' if done != 1 else ''}, skipped {skipped}.", "success")
-    return redirect(url_for("settings.index"))
+        return notify("sync", f"Refreshed {done}, but hit problems: {errors[0]}", "error")
+    return notify(
+        "sync", f"Refreshed {done} show{'s' if done != 1 else ''}, skipped {skipped}.", "success"
+    )
 
 
 @bp.route("/settings/availability", methods=["POST"])
@@ -125,21 +130,20 @@ def save_availability():
     try:
         days = int(raw)
     except ValueError:
-        flash("Give a whole number of days.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("availability", "Give a whole number of days.", "error")
     if not 0 <= days <= 14:
-        flash("Pick something between 0 and 14 days.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("availability", "Pick something between 0 and 14 days.", "error")
     secretstore.set("available_after_days", str(days))
     if days == 0:
-        flash("Programmes now count as watchable the day they air.", "success")
-    else:
-        flash(
-            f"Programmes now count as watchable {days} day"
-            f"{'s' if days != 1 else ''} after they air.",
-            "success",
+        return notify(
+            "availability", "Programmes now count as watchable the day they air.", "success"
         )
-    return redirect(url_for("settings.index"))
+    return notify(
+        "availability",
+        f"Programmes now count as watchable {days} day"
+        f"{'s' if days != 1 else ''} after they air.",
+        "success",
+    )
 
 
 @bp.route("/settings/mail", methods=["POST"])
@@ -157,12 +161,10 @@ def save_mail():
     if security not in mailer.SECURITIES:
         security = "starttls"
     if port and not port.isdigit():
-        flash("The port has to be a number.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("mail", "The port has to be a number.", "error")
     for label, value in (("from", from_address), ("to", to_address)):
         if value and "@" not in value:
-            flash(f"That {label} address does not look like an email address.", "error")
-            return redirect(url_for("settings.index"))
+            return notify("mail", f"That {label} address does not look like an email address.", "error")
 
     secretstore.set("smtp_host", host)
     secretstore.set("smtp_port", port or str(mailer.DEFAULT_PORT))
@@ -174,8 +176,7 @@ def save_mail():
     # An empty box leaves the stored password alone rather than wiping it.
     if password:
         secretstore.set("smtp_password", password, encrypted=True)
-    flash("Mail settings saved. The password is stored encrypted.", "success")
-    return redirect(url_for("settings.index"))
+    return notify("mail", "Mail settings saved. The password is stored encrypted.", "success")
 
 
 @bp.route("/settings/mail/schedule", methods=["POST"])
@@ -187,25 +188,20 @@ def save_mail_schedule():
     meridiem = (request.form.get("send_meridiem") or "").strip().lower()
 
     if not hour.isdigit() or not minute.isdigit():
-        flash("Give the time as numbers.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("mail", "Give the time as numbers.", "error")
     hour, minute = int(hour), int(minute)
     if not 0 <= minute <= 59:
-        flash("Minutes have to be between 0 and 59.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("mail", "Minutes have to be between 0 and 59.", "error")
 
     if meridiem in {"am", "pm"}:
         if not 1 <= hour <= 12:
-            flash("On a 12 hour clock the hour has to be between 1 and 12.", "error")
-            return redirect(url_for("settings.index"))
+            return notify("mail", "On a 12 hour clock the hour has to be between 1 and 12.", "error")
         hour = hour % 12 + (12 if meridiem == "pm" else 0)
     elif not 0 <= hour <= 23:
-        flash("The hour has to be between 0 and 23.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("mail", "The hour has to be between 0 and 23.", "error")
 
     if enabled == "1" and not mailer.is_configured():
-        flash("Fill in the mail server details before switching the email on.", "error")
-        return redirect(url_for("settings.index"))
+        return notify("mail", "Fill in the mail server details before switching the email on.", "error")
 
     when = f"{hour:02d}:{minute:02d}"
     secretstore.set("daily_email_enabled", enabled)
@@ -214,10 +210,8 @@ def save_mail_schedule():
 
     shown = mailer.format_time(mailer.parse_time(when))
     if enabled == "1":
-        flash(f"The morning email will go out at {shown}.", "success")
-    else:
-        flash(f"Time saved as {shown}. The morning email is off.", "success")
-    return redirect(url_for("settings.index"))
+        return notify("mail", f"The morning email will go out at {shown}.", "success")
+    return notify("mail", f"Time saved as {shown}. The morning email is off.", "success")
 
 
 @bp.route("/settings/clock", methods=["POST"])
@@ -226,7 +220,7 @@ def save_clock():
     """Switch between the 24 hour clock and am and pm."""
     choice = request.form.get("clock_format", "24")
     secretstore.set("clock_format", "12" if choice == "12" else "24")
-    return redirect(url_for("settings.index"))
+    return redirect(url_for("settings.index", _anchor="mail"))
 
 
 @bp.route("/settings/mail/test", methods=["POST"])
@@ -234,10 +228,9 @@ def save_clock():
 def test_mail():
     try:
         mailer.send_test()
-        flash("Test message sent. Have a look in your inbox.", "success")
+        return notify("mail", "Test message sent. Have a look in your inbox.", "success")
     except mailer.MailError as exc:
-        flash(str(exc), "error")
-    return redirect(url_for("settings.index"))
+        return notify("mail", str(exc), "error")
 
 
 @bp.route("/settings/mail/preview", methods=["POST"])
@@ -245,10 +238,9 @@ def test_mail():
 def preview_mail():
     """Send this morning's email now, whatever the clock says."""
     try:
-        flash(mailer.send_daily(force=True), "success")
+        return notify("mail", mailer.send_daily(force=True), "success")
     except mailer.MailError as exc:
-        flash(str(exc), "error")
-    return redirect(url_for("settings.index"))
+        return notify("mail", str(exc), "error")
 
 
 @bp.route("/settings/mail/clear", methods=["POST"])
@@ -258,8 +250,7 @@ def clear_mail():
                 "smtp_password", "mail_from", "mail_from_name", "mail_to"):
         secretstore.delete(key)
     secretstore.set("daily_email_enabled", "0")
-    flash("Mail settings removed, including the password.", "success")
-    return redirect(url_for("settings.index"))
+    return notify("mail", "Mail settings removed, including the password.", "success")
 
 
 @bp.route("/theme", methods=["POST"])
