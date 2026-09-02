@@ -74,7 +74,8 @@ def test_the_note_styling_is_not_a_banner():
     assert ".flash-success" not in css
     block = css[css.index(".note {"):]
     block = block[: block.index("}")]
-    assert "border-left" in block
+    assert "background: var(--muted)" in block
+    assert "border" not in block.replace("border-radius", "")
 
 
 def test_the_search_row_fills_the_width_when_it_wraps():

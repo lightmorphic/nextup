@@ -287,24 +287,18 @@ textarea { min-height: 120px; resize: vertical; }
   margin: 14px 0 0; padding: 9px 13px;
   border-radius: 10px;
   background: var(--muted);
-  border-left: 3px solid var(--muted-fg);
   color: var(--fg);
   font-size: 0.875rem; line-height: 1.5; font-weight: 500;
   animation: note-in .16s ease-out;
 }
 .notes .note:first-child { margin-top: 0; }
 .note-mark { flex: none; font-weight: 800; }
-.note-success { border-left-color: var(--success); }
 .note-success .note-mark { color: var(--success); }
-.note-error { border-left-color: var(--danger); }
 .note-error .note-mark { color: var(--danger); }
-.note-info { border-left-color: var(--info); }
 .note-info .note-mark { color: var(--info); }
 
 @keyframes note-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; } }
 
-/* Arriving at a panel by anchor should draw the eye without moving anything. */
-.panel:target { border-color: var(--accent); }
 
 .notice {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -396,9 +390,11 @@ textarea { min-height: 120px; resize: vertical; }
   padding: 7px; background: var(--panel);
 }
 .calendar td.outside { background: var(--muted); opacity: 0.6; }
-.calendar td.today { border-color: var(--accent); border-width: 2px; }
 .cal-daynum { font-size: 0.8125rem; font-weight: 600; color: var(--muted-fg); }
-.calendar td.today .cal-daynum { color: var(--accent); }
+.calendar td.today .cal-daynum {
+  display: inline-block; padding: 1px 8px; border-radius: 999px;
+  background: var(--accent); color: var(--on-accent);
+}
 .cal-ep {
   display: block; margin-top: 5px; padding: 4px 7px;
   border-radius: 7px; background: var(--accent-container);
@@ -474,7 +470,7 @@ textarea { min-height: 120px; resize: vertical; }
   display: grid; place-items: center; cursor: pointer; color: var(--muted-fg);
 }
 .tick svg { width: 17px; height: 17px; }
-.tick:hover { border-color: var(--accent); color: var(--accent); }
+.tick:hover { background: var(--accent-container); color: var(--on-accent-container); }
 .tick.on { background: var(--accent); border-color: transparent; color: var(--on-accent); }
 
 /* --------------------------------------------------------------- search */
@@ -754,9 +750,9 @@ textarea { min-height: 120px; resize: vertical; }
 }
 .decide-btn svg { width: 20px; height: 20px; }
 .decide-word { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.03em; }
-.decide-yes:hover { background: var(--success-bg); color: var(--success); border-color: var(--success); }
-.decide-maybe:hover { background: var(--accent-container); color: var(--on-accent-container); border-color: var(--accent); }
-.decide-no:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+.decide-yes:hover { background: var(--success-bg); color: var(--success); }
+.decide-maybe:hover { background: var(--accent-container); color: var(--on-accent-container); }
+.decide-no:hover { background: var(--danger-bg); color: var(--danger); }
 
 @media (max-width: 400px) {
   .discover-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -825,8 +821,8 @@ textarea { min-height: 120px; resize: vertical; }
 .cal-key-swatch {
   width: 12px; height: 12px; border-radius: 4px; display: inline-block;
 }
-.cal-key-tv { background: var(--accent-container); border: 1px solid var(--accent); }
-.cal-key-film { background: var(--info-bg); border: 1px solid var(--info); margin-left: 10px; }
+.cal-key-tv { background: var(--accent); }
+.cal-key-film { background: var(--info); margin-left: 10px; }
 
 /* Selects match the text inputs beside them. */
 select {

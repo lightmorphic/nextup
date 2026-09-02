@@ -8,6 +8,7 @@ import pathlib
 import re
 
 CSS = pathlib.Path(__file__).resolve().parent.parent / "app" / "static" / "css" / "main.css"
+SITE_CSS = pathlib.Path(__file__).resolve().parent.parent / "docs" / "css" / "site.css"
 
 
 def stylesheet():
@@ -43,3 +44,33 @@ def test_focus_is_never_removed_without_a_replacement():
     css = stylesheet()
     if re.search(r"outline\s*:\s*(none|0)\b", css):
         assert ":focus-visible" in css
+
+
+def test_no_coloured_edges_anywhere():
+    """A standing rule: status is carried by fill, glyph or text, never a
+    coloured border. Checked declaration by declaration, because a filled
+    button legitimately sets a coloured background and a transparent border on
+    the same line. Focus outlines are not borders and are required to stay.
+    """
+    status = re.compile(r"var\(--(accent|success|danger|warning|info)")
+    offenders = []
+    for name, css in (("app", stylesheet()), ("site", SITE_CSS.read_text(encoding="utf-8"))):
+        # Strip comments so prose about borders is not mistaken for a rule.
+        body = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        for declaration in body.split(";"):
+            declaration = declaration.strip().split("{")[-1].strip()
+            prop, _, value = declaration.partition(":")
+            prop = prop.strip()
+            if not prop.startswith("border") or prop == "border-radius":
+                continue
+            if status.search(value):
+                offenders.append(f"{name}: {prop}:{value.strip()}")
+    assert not offenders, "coloured edges found:\n" + "\n".join(offenders)
+
+
+def test_status_is_still_distinguishable_without_colour():
+    """Removing the edges must not leave colour as the only signal."""
+    note = (CSS.parent.parent.parent / "templates" / "partials" / "_note.html").read_text()
+    assert "note-mark" in note
+    # A tick for good news, an exclamation for bad, in the markup itself.
+    assert "'!' if item.kind == 'error' else" in note

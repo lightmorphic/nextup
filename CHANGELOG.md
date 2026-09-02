@@ -2,6 +2,17 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.8.2] — 2026-09-02
+
+### Changed
+- No coloured edges anywhere. The confirmation strips lose their coloured rule
+  and keep the coloured tick or exclamation. Today on the calendar is a filled
+  date rather than a ring round the cell. The tick buttons, the yes, no and
+  maybe buttons and the calendar key all carry their meaning in the fill or the
+  text instead. A test now walks both stylesheets and fails if one comes back.
+- Focus outlines stay, since they are outlines rather than borders and taking
+  them away would leave anyone using a keyboard with nowhere to look.
+
 ## [0.8.1] — 2026-09-02
 
 ### Fixed
