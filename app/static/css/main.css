@@ -520,6 +520,14 @@ textarea { min-height: 120px; resize: vertical; }
   .show-hero .poster { width: 132px; }
 }
 
+/* Below this the poster and the text are both too narrow side by side, so the
+   poster goes above and the synopsis gets the full width. */
+@media (max-width: 520px) {
+  .show-hero { grid-template-columns: 1fr; gap: 16px; }
+  .show-hero .poster { width: 148px; }
+  .show-hero-meta { margin: 8px 0 12px; }
+}
+
 @media (max-width: 640px) {
   h1 { font-size: 1.625rem; }
   .shell { padding: 0 14px 48px; }
