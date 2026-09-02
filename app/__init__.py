@@ -70,9 +70,10 @@ def create_app(start_sync=True):
     _register_context(app)
 
     if start_sync:
-        from . import sync
+        from . import mailer, sync
 
         sync.start_background(app)
+        mailer.start_background(app)
 
     return app
 

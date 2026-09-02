@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, make_response, redirect, render_template, request, url_for
 
-from .. import db, secretstore, sync, tmdb
+from .. import db, mailer, queries, secretstore, sync, tmdb
 from ..auth import login_required, set_password, set_username, using_default_password
 
 bp = Blueprint("settings", __name__)
@@ -34,6 +34,10 @@ def index():
     return render_template(
         "pages/settings.html",
         has_key=secretstore.has("tmdb_api_key"),
+        mail=mailer.config(),
+        mail_ready=mailer.is_configured(),
+        securities=mailer.SECURITIES,
+        available_after=queries.available_after_days(),
         accents=ACCENTS,
         last_sync=sync.last_run(),
         syncing=sync.is_running(),
@@ -110,6 +114,120 @@ def run_sync():
         flash(f"Refreshed {done}, but hit problems: {errors[0]}", "error")
     else:
         flash(f"Refreshed {done} show{'s' if done != 1 else ''}, skipped {skipped}.", "success")
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/availability", methods=["POST"])
+@login_required
+def save_availability():
+    """How long after something airs before Nextup calls it watchable."""
+    raw = (request.form.get("available_after_days") or "").strip()
+    try:
+        days = int(raw)
+    except ValueError:
+        flash("Give a whole number of days.", "error")
+        return redirect(url_for("settings.index"))
+    if not 0 <= days <= 14:
+        flash("Pick something between 0 and 14 days.", "error")
+        return redirect(url_for("settings.index"))
+    secretstore.set("available_after_days", str(days))
+    if days == 0:
+        flash("Programmes now count as watchable the day they air.", "success")
+    else:
+        flash(
+            f"Programmes now count as watchable {days} day"
+            f"{'s' if days != 1 else ''} after they air.",
+            "success",
+        )
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/mail", methods=["POST"])
+@login_required
+def save_mail():
+    host = (request.form.get("smtp_host") or "").strip()
+    port = (request.form.get("smtp_port") or "").strip()
+    security = request.form.get("smtp_security", "starttls")
+    username = (request.form.get("smtp_username") or "").strip()
+    password = request.form.get("smtp_password") or ""
+    from_address = (request.form.get("mail_from") or "").strip()
+    from_name = (request.form.get("mail_from_name") or "Nextup").strip()
+    to_address = (request.form.get("mail_to") or "").strip()
+
+    if security not in mailer.SECURITIES:
+        security = "starttls"
+    if port and not port.isdigit():
+        flash("The port has to be a number.", "error")
+        return redirect(url_for("settings.index"))
+    for label, value in (("from", from_address), ("to", to_address)):
+        if value and "@" not in value:
+            flash(f"That {label} address does not look like an email address.", "error")
+            return redirect(url_for("settings.index"))
+
+    secretstore.set("smtp_host", host)
+    secretstore.set("smtp_port", port or str(mailer.DEFAULT_PORT))
+    secretstore.set("smtp_security", security)
+    secretstore.set("smtp_username", username)
+    secretstore.set("mail_from", from_address)
+    secretstore.set("mail_from_name", from_name or "Nextup")
+    secretstore.set("mail_to", to_address)
+    # An empty box leaves the stored password alone rather than wiping it.
+    if password:
+        secretstore.set("smtp_password", password, encrypted=True)
+    flash("Mail settings saved. The password is stored encrypted.", "success")
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/mail/schedule", methods=["POST"])
+@login_required
+def save_mail_schedule():
+    enabled = "1" if request.form.get("daily_email_enabled") else "0"
+    hour = (request.form.get("daily_email_hour") or "").strip()
+    if hour and (not hour.isdigit() or not 0 <= int(hour) <= 23):
+        flash("Pick an hour between 0 and 23.", "error")
+        return redirect(url_for("settings.index"))
+    if enabled == "1" and not mailer.is_configured():
+        flash("Fill in the mail server details before switching the email on.", "error")
+        return redirect(url_for("settings.index"))
+    secretstore.set("daily_email_enabled", enabled)
+    secretstore.set("daily_email_hour", hour or str(mailer.DEFAULT_HOUR))
+    flash(
+        "The morning email is on." if enabled == "1" else "The morning email is off.",
+        "success",
+    )
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/mail/test", methods=["POST"])
+@login_required
+def test_mail():
+    try:
+        mailer.send_test()
+        flash("Test message sent. Have a look in your inbox.", "success")
+    except mailer.MailError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/mail/preview", methods=["POST"])
+@login_required
+def preview_mail():
+    """Send this morning's email now, whatever the clock says."""
+    try:
+        flash(mailer.send_daily(force=True), "success")
+    except mailer.MailError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("settings.index"))
+
+
+@bp.route("/settings/mail/clear", methods=["POST"])
+@login_required
+def clear_mail():
+    for key in ("smtp_host", "smtp_port", "smtp_security", "smtp_username",
+                "smtp_password", "mail_from", "mail_from_name", "mail_to"):
+        secretstore.delete(key)
+    secretstore.set("daily_email_enabled", "0")
+    flash("Mail settings removed, including the password.", "success")
     return redirect(url_for("settings.index"))
 
 
