@@ -765,3 +765,18 @@ textarea { min-height: 120px; resize: vertical; }
 }
 .fact-list dd { margin: 0; font-size: 0.9375rem; }
 .tagline { font-style: italic; color: var(--muted-fg); margin: 0 0 12px; }
+
+/* Films on the calendar. Blue rather than the accent, and every entry carries
+   the word "Film" as well, so the difference does not rest on colour alone. */
+.cal-ep.cal-film { background: var(--info-bg); color: var(--info); }
+.cal-ep.cal-film.done { background: var(--muted); color: var(--muted-fg); }
+
+.cal-key {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.8125rem; color: var(--muted-fg); margin-right: auto;
+}
+.cal-key-swatch {
+  width: 12px; height: 12px; border-radius: 4px; display: inline-block;
+}
+.cal-key-tv { background: var(--accent-container); border: 1px solid var(--accent); }
+.cal-key-film { background: var(--info-bg); border: 1px solid var(--info); margin-left: 10px; }
