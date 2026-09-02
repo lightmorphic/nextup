@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.7.2] — 2026-09-02
+
+### Fixed
+- Anything hidden by script stayed on screen. The browser hides such elements
+  with its own stylesheet, and any rule of ours that sets how an element is laid
+  out overrode it. The clock switch's fallback button was the visible symptom.
+
 ## [0.7.1] — 2026-09-02
 
 ### Changed
