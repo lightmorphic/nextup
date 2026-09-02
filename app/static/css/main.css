@@ -165,9 +165,12 @@ h3 { font-size: 1.0625rem; }
 .nav a:hover { background: var(--muted); color: var(--fg); text-decoration: none; }
 .nav a.current { background: var(--accent-container); color: var(--on-accent-container); }
 
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.topbar-right {
+  margin-left: auto; display: flex; align-items: center; gap: 8px;
+  min-width: 0; flex: 0 1 auto;
+}
 
-.searchbox { display: flex; align-items: center; gap: 0; }
+.searchbox { display: flex; align-items: center; gap: 0; min-width: 0; flex: 0 1 auto; }
 .searchbox input {
   width: clamp(9rem, 18vw, 15rem); padding: 8px 12px;
   border: 1px solid var(--border); border-right: 0;
@@ -547,6 +550,12 @@ textarea { min-height: 120px; resize: vertical; }
   .show-hero { grid-template-columns: 1fr; gap: 16px; }
   .show-hero .poster { width: 148px; }
   .show-hero-meta { margin: 8px 0 12px; }
+}
+
+@media (max-width: 1080px) {
+  .topbar-right { flex: 1 1 100%; margin-left: 0; }
+  .searchbox { flex: 1; }
+  .searchbox input { width: 100%; }
 }
 
 @media (max-width: 640px) {
