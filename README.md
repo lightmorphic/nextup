@@ -83,6 +83,19 @@ docker compose up -d
 
 `docker compose up -d` on its own does not re-pull a `:latest` tag.
 
+### If you put a proxy in front of it on the same port
+
+Something like Tailscale Serve listening on the same port number the container
+publishes will fight it for that port, and whichever starts first wins. The
+symptom is `address already in use` on a restart that worked yesterday. Bind the
+container to the loopback address instead, and let the proxy be the only thing
+listening publicly:
+
+```yaml
+    ports:
+      - "127.0.0.1:4090:8080"
+```
+
 ## Configuration
 
 | Variable | Default | What it does |
