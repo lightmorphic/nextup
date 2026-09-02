@@ -1,6 +1,6 @@
 services:
   nextup:
-    image: ghcr.io/fosscharlie/nextup:latest
+    image: ghcr.io/lightmorphic/nextup:latest
     container_name: nextup
     restart: unless-stopped
     ports:
