@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.5.1] — 2026-09-02
+
+### Fixed
+- The cast strip on a show or film page pushed the whole page off to the right
+  instead of scrolling inside its own panel. The column it sits in was sizing
+  itself to the full width of every cast photograph laid end to end.
+
 ## [0.5.0] — 2026-09-02
 
 ### Added

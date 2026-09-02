@@ -1,0 +1,45 @@
+"""Guards for layout rules that are easy to delete and hard to notice.
+
+A grid track will not shrink below its content unless it is told to. Every
+grid below holds something that does not wrap, so losing these rules pushes
+the whole page sideways rather than scrolling inside the panel.
+"""
+import pathlib
+import re
+
+CSS = pathlib.Path(__file__).resolve().parent.parent / "app" / "static" / "css" / "main.css"
+
+
+def stylesheet():
+    return CSS.read_text(encoding="utf-8")
+
+
+def test_the_split_layout_lets_its_columns_shrink():
+    assert ".split > * { min-width: 0; }" in stylesheet()
+
+
+def test_the_cast_strip_scrolls_inside_itself():
+    css = stylesheet()
+    block = css[css.index(".cast-strip {"):]
+    block = block[: block.index("}")]
+    assert "overflow-x: auto" in block
+    assert "min-width: 0" in block
+    assert "max-width: 100%" in block
+
+
+def test_the_show_hero_columns_can_shrink():
+    assert ".show-hero > * { min-width: 0; }" in stylesheet()
+
+
+def test_every_custom_property_used_is_defined():
+    css = stylesheet()
+    defined = set(re.findall(r"(--[a-z0-9-]+)\s*:", css))
+    used = set(re.findall(r"var\((--[a-z0-9-]+)", css))
+    missing = sorted(used - defined)
+    assert not missing, f"undefined custom properties: {missing}"
+
+
+def test_focus_is_never_removed_without_a_replacement():
+    css = stylesheet()
+    if re.search(r"outline\s*:\s*(none|0)\b", css):
+        assert ":focus-visible" in css
