@@ -36,7 +36,7 @@
       "operatingSystem": "Linux, via Docker",
       "description": "A self-hosted tracker for TV shows and films. It records which episodes you have watched, shows the next one to watch, lists when new episodes air, and tells you when a film reaches streaming in the UK.",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-      "softwareVersion": "0.3.0",
+      "softwareVersion": "0.4.0",
       "codeRepository": "https://github.com/lightmorphic/nextup",
       "programmingLanguage": "Python",
       "isAccessibleForFree": true,
@@ -98,6 +98,16 @@
         },
         {
           "@type": "Question",
+          "name": "What happens to something I cross off in Discover?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It is hidden from Discover, not deleted. Nextup remembers the decision so it never asks you twice, but the title still appears in a search, and a single button on the Discover page brings back everything you have dismissed." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there information on individual episodes?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every episode has its own page with the still image, the synopsis, the air date, the runtime, the rating, the guest cast and the director. Episode titles throughout the app lead there, and each page links to the episodes either side of it." }
+        },
+        {
+          "@type": "Question",
           "name": "Where is my data kept?",
           "acceptedAnswer": { "@type": "Answer", "text": "In one directory on your own server. A single SQLite database holds your shows and watch history, alongside the encryption key and the cached artwork. Backing up that directory backs up everything." }
         }
@@ -118,6 +128,7 @@
     </a>
     <nav aria-label="Main">
       <a href="#what-it-does">What it does</a>
+      <a href="#discover">Discover</a>
       <a href="#install">Install</a>
       <a href="#limits">Limits</a>
       <a href="#faq">Questions</a>
@@ -223,7 +234,58 @@
   </div>
 </section>
 
-<section>
+<section id="discover">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Three buttons, and you are done deciding</h2>
+      <p>
+        Discover shows you what is arriving, and asks one question about each of
+        it. A tick puts it on your list. A question mark parks it on the maybe
+        list. A cross sends it away and it does not come back here.
+      </p>
+    </div>
+    <figure>
+      <div class="shot">
+        <img src="images/nextup-discover-films.webp"
+             alt="The Discover films page in Nextup, a grid of film posters each with a tick, question mark and cross button underneath."
+             width="1400" height="1147" loading="lazy" decoding="async">
+      </div>
+      <figcaption>Discover, for films reaching streaming in the next month.</figcaption>
+    </figure>
+
+    <div class="feature-lead" style="margin-top:2.5rem">
+      <div>
+        <h3>Films, filtered to what you can actually watch</h3>
+        <p>
+          The film list asks TMDB for home releases, not cinema ones. So it
+          answers the question a person who does not go to the cinema is actually
+          asking, which is what turns up on a service in the next fortnight.
+          Seven, fourteen, thirty or sixty days ahead, your choice.
+        </p>
+        <p>
+          A cross does not delete anything. It only hides that title from
+          Discover, so a search still finds it, and one button brings back
+          everything you dismissed if you change your mind.
+        </p>
+      </div>
+      <div>
+        <h3>TV, brand new or already on air</h3>
+        <p>
+          The television list has two modes: series starting for the first time,
+          and everything with an episode going out right now. Anything already on
+          one of your lists is filtered out, so you are only ever looking at
+          things you have not had a view on.
+        </p>
+        <p>
+          Say yes to a series and Nextup pulls in every season and episode
+          immediately, so it appears in Next up straight away.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
   <div class="wrap">
     <div class="feature-lead">
       <div>
@@ -252,7 +314,7 @@
   </div>
 </section>
 
-<section class="band">
+<section>
   <div class="wrap">
     <div class="feature-lead flip">
       <figure>
@@ -299,6 +361,16 @@
         <p>
           The dashboard adds up every episode you have ticked off and turns it
           into days and hours. Read that figure however you like.
+        </p>
+      </div>
+      <div class="card">
+        <span class="card-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M10 9.5v5l4-2.5z"/></svg>
+        </span>
+        <h3>A page for every episode</h3>
+        <p>
+          Click any episode title for its still, synopsis, air date, runtime,
+          guest cast and director, with links to the episodes either side.
         </p>
       </div>
       <div class="card">
@@ -483,11 +555,19 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       </figure>
       <figure>
         <div class="shot">
-          <img src="images/nextup-upcoming.webp"
-               alt="The Coming soon page in Nextup, listing episodes grouped by the day they air."
-               width="1400" height="972" loading="lazy" decoding="async">
+          <img src="images/nextup-episode.webp"
+               alt="An episode page in Nextup, with the still from the episode, its synopsis, air date and guest cast."
+               width="1400" height="1147" loading="lazy" decoding="async">
         </div>
-        <figcaption>Coming soon, grouped by air date.</figcaption>
+        <figcaption>An episode, with its guest cast.</figcaption>
+      </figure>
+      <figure>
+        <div class="shot">
+          <img src="images/nextup-discover-tv.webp"
+               alt="The Discover TV page in Nextup, a grid of series posters each with tick, question mark and cross buttons."
+               width="1400" height="1147" loading="lazy" decoding="async">
+        </div>
+        <figcaption>Discover, for television.</figcaption>
       </figure>
       <figure>
         <div class="shot">
@@ -526,6 +606,12 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       <dt>How does it know when a film reaches streaming?</dt>
       <dd>TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes. Rental and purchase are left out.</dd>
 
+      <dt>What happens to something I cross off in Discover?</dt>
+      <dd>It is hidden from Discover, not deleted. Nextup remembers the decision so it never asks you twice, but the title still appears in a search, and a single button on the Discover page brings back everything you have dismissed.</dd>
+
+      <dt>Is there information on individual episodes?</dt>
+      <dd>Yes. Every episode has its own page with the still image, the synopsis, the air date, the runtime, the rating, the guest cast and the director. Episode titles throughout the app lead there, and each page links to the episodes either side of it.</dd>
+
       <dt>How do I update it?</dt>
       <dd>Run <code>docker compose pull</code>, then <code>docker compose down</code> and <code>docker compose up -d</code>. A plain <code>up -d</code> will not fetch a newer image on its own.</dd>
 
@@ -560,6 +646,7 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
         <h3>On this page</h3>
         <ul>
           <li><a href="#what-it-does">What it does</a></li>
+          <li><a href="#discover">Discover</a></li>
           <li><a href="#install">Install</a></li>
           <li><a href="#limits">Limits</a></li>
           <li><a href="#faq">Questions</a></li>

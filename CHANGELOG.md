@@ -2,6 +2,23 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.4.0] — 2026-09-02
+
+### Added
+- Show and film pages now carry proper detail: the cast with photographs, the
+  genres, the certificate, the tagline, the creators of a series or the director
+  and writers of a film, and links out to a trailer, IMDb and a where-to-watch
+  page.
+- Shows list which UK services carry them, the way films already did.
+- Cast photographs go through the same local cache as posters, so the pages
+  still call out to nobody.
+
+### Changed
+- The image proxy accepts filenames with dashes and underscores, which cast
+  photographs use and posters do not.
+- The extra detail is fetched when the page is opened rather than stored, so it
+  is never stale, and both pages render fine when TMDB cannot be reached.
+
 ## [0.3.0] — 2026-09-02
 
 ### Added
