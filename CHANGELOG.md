@@ -2,6 +2,18 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.8.0] — 2026-09-02
+
+### Changed
+- Confirmations no longer appear as a coloured banner at the top of the page.
+  They now sit beside the control that caused them, as a quiet line with a
+  coloured edge, and saving a setting returns you to that panel rather than
+  throwing you back to the top to read the message.
+- The top bar drops its "Next up" link, since the logo already goes there, which
+  leaves the search box room to stay on the same row.
+- The light, dark and automatic switch is now an icon on its own. It still
+  announces which mode it is in to a screen reader.
+
 ## [0.7.2] — 2026-09-02
 
 ### Fixed
