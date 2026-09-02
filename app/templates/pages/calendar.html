@@ -29,7 +29,7 @@
                 <div class="cal-daynum">{{ day.date.day }}{% if day.is_today %} · today{% endif %}</div>
                 {% for ep in day.episodes %}
                   <a class="cal-ep {{ 'done' if ep.watched else '' }}"
-                     href="{{ url_for('shows.detail', show_id=ep.show_id) }}"
+                     href="{{ url_for('shows.episode', episode_id=ep.id) }}"
                      title="{{ ep.show_name }} {{ ep|episode_code }} — {{ ep.name or '' }}">
                     {{ ep.show_name }}
                     <small>{{ ep|episode_code }}{% if ep.watched %} ✓{% endif %}</small>

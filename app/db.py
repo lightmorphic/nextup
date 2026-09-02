@@ -49,6 +49,7 @@ MIGRATIONS = [
     ("movie", "providers", "TEXT"),
     ("movie", "provider_link", "TEXT"),
     ("movie", "providers_checked_at", "TEXT"),
+    ("tracked_movie", "shortlist", "INTEGER NOT NULL DEFAULT 0"),
 ]
 
 

@@ -2,6 +2,24 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.3.0] — 2026-09-02
+
+### Added
+- **Discover**, two pages for deciding what to take on. Films lists what reaches
+  streaming or television in the next 7, 14, 30 or 60 days, with cinema releases
+  left out. TV lists series starting soon, or everything on air now.
+- A tick, a question mark and a cross on every Discover card. Tick adds it,
+  question mark puts it on the Maybe list, cross hides it from Discover for
+  good. Hidden items still turn up in a search, and one button brings them all
+  back.
+- **Episode pages.** Click any episode title and you get its still, synopsis,
+  air date, runtime, rating, guest cast and director, with links to the episode
+  either side. Episode titles across the dashboard, calendar, show pages and
+  Coming soon all lead there.
+- Films can go on the Maybe list too, so the tick, question mark and cross mean
+  the same thing whichever page you are on. The Maybe page now has a Shows
+  section and a Films section.
+
 ## [0.2.0] — 2026-09-02
 
 ### Added

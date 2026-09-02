@@ -122,7 +122,9 @@
         <li class="ep {{ 'watched' if ep.watched else '' }}">
           <span class="ep-code">{{ ep|episode_code }}</span>
           <div style="min-width:0">
-            <div class="ep-name">{{ ep.name or 'Episode ' ~ ep.episode_number }}</div>
+            <div class="ep-name">
+              <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep.name or 'Episode ' ~ ep.episode_number }}</a>
+            </div>
             <div class="ep-date">
               {% if aired %}{{ ep.air_date|pretty_date }}
               {% elif ep.air_date %}Airs {{ ep.air_date|relative_day }}

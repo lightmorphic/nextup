@@ -183,6 +183,29 @@ def show_seasons(show_id):
     return ordered
 
 
+def episode_neighbours(show_id, season_number, episode_number):
+    """The episode before and after this one, for stepping through a series."""
+    previous = db.query(
+        """
+        SELECT * FROM episode WHERE show_id = ?
+          AND (season_number < ? OR (season_number = ? AND episode_number < ?))
+        ORDER BY season_number DESC, episode_number DESC LIMIT 1
+        """,
+        (show_id, season_number, season_number, episode_number),
+        one=True,
+    )
+    following = db.query(
+        """
+        SELECT * FROM episode WHERE show_id = ?
+          AND (season_number > ? OR (season_number = ? AND episode_number > ?))
+        ORDER BY season_number, episode_number LIMIT 1
+        """,
+        (show_id, season_number, season_number, episode_number),
+        one=True,
+    )
+    return previous, following
+
+
 def recently_watched(limit=12):
     return db.query(
         """
@@ -197,19 +220,53 @@ def recently_watched(limit=12):
     )
 
 
-def movies(watched=None):
-    clause = ""
-    if watched is True:
-        clause = " WHERE t.watched_at IS NOT NULL"
-    elif watched is False:
-        clause = " WHERE t.watched_at IS NULL"
+def movies(watched=None, shortlist=False, everything=False):
+    """Films on your list. Set shortlist=True for the maybe list instead."""
+    clauses = []
+    if not everything:
+        clauses.append("t.shortlist = 1" if shortlist else "t.shortlist = 0")
+        if watched is True:
+            clauses.append("t.watched_at IS NOT NULL")
+        elif watched is False:
+            clauses.append("t.watched_at IS NULL")
+    where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
     return db.query(
         f"""
-        SELECT m.*, t.added_at, t.watched_at
+        SELECT m.*, t.added_at, t.watched_at, t.shortlist
         FROM movie m JOIN tracked_movie t ON t.movie_id = m.id
-        {clause}
+        {where}
         ORDER BY t.added_at DESC
         """
+    )
+
+
+def movie_list_state(movie_id):
+    return db.query(
+        "SELECT watched_at, shortlist FROM tracked_movie WHERE movie_id = ?",
+        (movie_id,),
+        one=True,
+    )
+
+
+def dismissed_ids(kind):
+    """Everything you said no to on the Discover pages."""
+    return {
+        row["item_id"]
+        for row in db.query("SELECT item_id FROM dismissed WHERE kind = ?", (kind,))
+    }
+
+
+def is_dismissed(kind, item_id):
+    return db.query(
+        "SELECT 1 FROM dismissed WHERE kind = ? AND item_id = ?", (kind, item_id), one=True
+    ) is not None
+
+
+def known_ids():
+    """Every show and film already on a list, so Discover can skip them."""
+    return (
+        {row["show_id"] for row in db.query("SELECT show_id FROM tracked_show")},
+        {row["movie_id"] for row in db.query("SELECT movie_id FROM tracked_movie")},
     )
 
 
@@ -229,10 +286,15 @@ def is_streamable(row):
 def films_by_state():
     """Films split into ready to watch, still waiting, and already seen."""
     ready, waiting = [], []
-    for row in movies(watched=False):
+    for row in movies(watched=False, shortlist=False):
         (ready if is_streamable(row) else waiting).append(row)
     waiting.sort(key=lambda r: (r["digital_release"] or "9999-99-99"))
-    return {"ready": ready, "waiting": waiting, "seen": movies(watched=True)}
+    return {
+        "ready": ready,
+        "waiting": waiting,
+        "seen": movies(watched=True),
+        "maybe": movies(shortlist=True),
+    }
 
 
 def films_arriving(days=60):
@@ -242,7 +304,7 @@ def films_arriving(days=60):
         """
         SELECT m.*, t.added_at FROM movie m
         JOIN tracked_movie t ON t.movie_id = m.id
-        WHERE t.watched_at IS NULL
+        WHERE t.watched_at IS NULL AND t.shortlist = 0
           AND m.digital_release IS NOT NULL
           AND m.digital_release >= date('now') AND m.digital_release <= ?
         ORDER BY m.digital_release
@@ -258,7 +320,7 @@ def dashboard_counts():
             (SELECT COUNT(*) FROM tracked_show WHERE archived = 0 AND shortlist = 0) AS shows,
             (SELECT COUNT(*) FROM tracked_show WHERE shortlist = 1) AS maybe_shows,
             (SELECT COUNT(*) FROM watched_episode) AS episodes_watched,
-            (SELECT COUNT(*) FROM tracked_movie WHERE watched_at IS NULL) AS movies_to_watch,
+            (SELECT COUNT(*) FROM tracked_movie WHERE watched_at IS NULL AND shortlist = 0) AS movies_to_watch,
             (SELECT COALESCE(SUM(COALESCE(e.runtime, s.episode_runtime, 45)), 0)
                FROM watched_episode w
                JOIN episode e ON e.id = w.episode_id

@@ -58,7 +58,10 @@
             </a>
             <div class="watch-card-body">
               <a class="watch-card-show" href="{{ url_for('shows.detail', show_id=show.id) }}">{{ show.name }}</a>
-              <div class="watch-card-ep">{{ ep|episode_code }} · {{ ep.name or 'Episode ' ~ ep.episode_number }}</div>
+              <div class="watch-card-ep">
+                {{ ep|episode_code }} ·
+                <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep.name or 'Episode ' ~ ep.episode_number }}</a>
+              </div>
               <div class="watch-card-meta">
                 <span class="badge">Aired {{ ep.air_date|relative_day }}</span>
                 {% if item.progress.remaining > 1 %}
@@ -116,7 +119,10 @@
             </a>
             <div style="min-width:0">
               <a class="show-tile-name" href="{{ url_for('shows.detail', show_id=ep.show_id) }}">{{ ep.show_name }}</a>
-              <div class="ep-date">{{ ep|episode_code }} · {{ ep.air_date|relative_day }}</div>
+              <div class="ep-date">
+              <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep|episode_code }}</a>
+              · {{ ep.air_date|relative_day }}
+            </div>
             </div>
           </div>
         {% endfor %}
@@ -137,7 +143,10 @@
           </a>
           <div style="min-width:0">
             <a class="show-tile-name" href="{{ url_for('shows.detail', show_id=ep.show_id) }}">{{ ep.show_name }}</a>
-            <div class="ep-date">{{ ep|episode_code }} · {{ ep.name or '' }}</div>
+            <div class="ep-date">
+              <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep|episode_code }}</a>
+              · {{ ep.name or '' }}
+            </div>
           </div>
         </div>
       {% endfor %}

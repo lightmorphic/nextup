@@ -672,3 +672,63 @@ textarea { min-height: 120px; resize: vertical; }
   --accent-container-dark: #1d252a; --on-accent-container-dark: #b7c4cb;
   --on-accent: #000000;
 }
+
+/* ------------------------------------------------------ discover cards */
+
+.discover-grid {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.discover-card {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-panel);
+  padding: 12px;
+}
+.discover-card .poster { box-shadow: none; }
+.discover-card-name { font-weight: 700; font-size: 0.9375rem; line-height: 1.3;
+                      color: var(--fg); text-decoration: none; }
+.discover-card-name:hover { text-decoration: underline; }
+.discover-card-meta { font-size: 0.8125rem; color: var(--muted-fg); }
+.discover-card-body { flex: 1; min-height: 0; }
+.discover-card p {
+  margin: 6px 0 0; font-size: 0.8125rem; color: var(--muted-fg); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.decide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: auto; }
+.decide form { display: contents; }
+.decide-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; width: 100%; min-height: 52px; padding: 7px 4px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--muted); color: var(--fg);
+  font: inherit; cursor: pointer;
+}
+.decide-btn svg { width: 20px; height: 20px; }
+.decide-word { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.03em; }
+.decide-yes:hover { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+.decide-maybe:hover { background: var(--accent-container); color: var(--on-accent-container); border-color: var(--accent); }
+.decide-no:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+
+@media (max-width: 400px) {
+  .discover-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .decide-word { display: none; }
+  .decide-btn { min-height: 44px; }
+}
+
+/* ------------------------------------------------------- episode page */
+
+.episode-still {
+  width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: var(--radius); margin-bottom: 18px; background: var(--muted);
+}
+.credit-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.credit-list li { font-size: 0.9375rem; }
+.ep-nav {
+  display: flex; justify-content: space-between; gap: 12px;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.ep-nav .btn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

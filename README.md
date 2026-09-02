@@ -19,6 +19,12 @@ and nothing phoning home.
 - **Films** — split into ready to watch, coming to streaming, and seen. Each
   film shows the date it reaches home viewing and which UK services carry it,
   which is more use than a cinema release date if you do not go to the cinema.
+- **Discover** — separate pages for films and TV. Films shows what reaches
+  streaming in the next fortnight, not what opens at the cinema. A tick, a
+  question mark and a cross on every card send it to your list, your maybe list,
+  or out of sight.
+- **Episode pages** — the still, synopsis, air date, runtime, guest cast and
+  director for any episode, with links either side of it.
 - **Search** — shows and films from TMDB, added in one click.
 
 Data comes from [TMDB](https://www.themoviedb.org/). Tracked shows refresh

@@ -30,7 +30,14 @@ def api_key():
     return key
 
 
-def _get(path, **params):
+def _get(path, params=None, **kwargs):
+    """GET a TMDB endpoint.
+
+    Some Discover filters are named with a dot, such as release_date.gte, so
+    they come in through `params` rather than as keyword arguments.
+    """
+    params = dict(params or {})
+    params.update(kwargs)
     params["api_key"] = api_key()
     params.setdefault("language", "en-GB")
     url = f"{BASE}{path}"
@@ -96,6 +103,10 @@ def show(show_id):
 
 def season(show_id, season_number):
     return _get(f"/tv/{show_id}/season/{season_number}")
+
+
+def episode(show_id, season_number, episode_number):
+    return _get(f"/tv/{show_id}/season/{season_number}/episode/{episode_number}")
 
 
 def movie(movie_id):
@@ -164,6 +175,46 @@ def uk_providers(payload):
         if names:
             return names, country.get("link")
     return [], None
+
+
+def discover_films_reaching_streaming(start, end, page=1):
+    """Films whose home release falls inside a window.
+
+    Release type 4 is digital and 6 is television. Cinema releases, types 2
+    and 3, are deliberately left out.
+    """
+    return _get("/discover/movie", {
+        "region": "GB",
+        "with_release_type": "4|6",
+        "release_date.gte": start,
+        "release_date.lte": end,
+        "sort_by": "popularity.desc",
+        "vote_count.gte": 0,
+        "include_adult": "false",
+        "page": page,
+    })
+
+
+def discover_new_series(start, end, page=1):
+    """Series whose first episode falls inside a window."""
+    return _get("/discover/tv", {
+        "first_air_date.gte": start,
+        "first_air_date.lte": end,
+        "sort_by": "popularity.desc",
+        "include_adult": "false",
+        "page": page,
+    })
+
+
+def discover_returning_series(start, end, page=1):
+    """Series with an episode airing inside a window, new or long-running."""
+    return _get("/discover/tv", {
+        "air_date.gte": start,
+        "air_date.lte": end,
+        "sort_by": "popularity.desc",
+        "include_adult": "false",
+        "page": page,
+    })
 
 
 def trending_tv():

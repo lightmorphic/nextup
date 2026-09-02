@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nextup: a self-hosted TV and film tracker</title>
-<meta name="description" content="Nextup tracks the TV shows and films you watch, tells you which episode you are up to and when the next one airs. Free, open source, and it runs on your own server.">
+<meta name="description" content="Nextup tracks the TV shows and films you watch, tells you which episode you are up to, when the next one airs, and when a film reaches streaming in the UK. Free, open source, self-hosted.">
 <link rel="canonical" href="https://nextup.lightmorphic.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/site.css">
@@ -34,9 +34,9 @@
       "applicationCategory": "MultimediaApplication",
       "applicationSubCategory": "Media tracker",
       "operatingSystem": "Linux, via Docker",
-      "description": "A self-hosted tracker for TV shows and films. It records which episodes you have watched, shows the next one to watch, and lists when new episodes air.",
+      "description": "A self-hosted tracker for TV shows and films. It records which episodes you have watched, shows the next one to watch, lists when new episodes air, and tells you when a film reaches streaming in the UK.",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-      "softwareVersion": "0.2.0",
+      "softwareVersion": "0.3.0",
       "codeRepository": "https://github.com/lightmorphic/nextup",
       "programmingLanguage": "Python",
       "isAccessibleForFree": true,
@@ -88,6 +88,16 @@
         },
         {
           "@type": "Question",
+          "name": "Can I keep a list of shows I might watch one day?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, that is the Maybe list. Anything on it keeps its poster and its next air date but stays out of Next up, the calendar and Coming soon, so it never makes you look behind on something you never started. One button moves it across when you decide to watch it." }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Nextup know when a film reaches streaming?",
+          "acceptedAnswer": { "@type": "Answer", "text": "TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes." }
+        },
+        {
+          "@type": "Question",
           "name": "Where is my data kept?",
           "acceptedAnswer": { "@type": "Answer", "text": "In one directory on your own server. A single SQLite database holds your shows and watch history, alongside the encryption key and the cached artwork. Backing up that directory backs up everything." }
         }
@@ -124,8 +134,9 @@
     <h1>Know what to watch next.</h1>
     <p class="lede">
       Nextup keeps a list of the TV shows and films you watch. It works out which
-      episode you are up to, counts how far behind you have fallen, and tells you
-      when the next one airs. It runs on your own server and it stays there.
+      episode you are up to, counts how far behind you have fallen, tells you when
+      the next one airs, and tells you when a film finally reaches a streaming
+      service you can use. It runs on your own server and it stays there.
     </p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="https://github.com/lightmorphic/nextup">
@@ -214,18 +225,80 @@
 
 <section>
   <div class="wrap">
+    <div class="feature-lead">
+      <div>
+        <h2>Not everything is a commitment</h2>
+        <p>
+          There is a difference between the shows you follow and the ones you have
+          half an eye on. Put the second sort on the <strong>Maybe</strong> list and
+          they stay out of Next up, out of the calendar and out of Coming soon,
+          so a dozen curiosities do not make it look as though you are twelve
+          episodes behind.
+        </p>
+        <p>
+          They keep their poster, their network and the date of their next episode,
+          so you can see at a glance whether one has started. When you decide to
+          watch it, one button moves it across and it behaves like any other show.
+        </p>
+      </div>
+      <figure>
+        <div class="shot">
+          <img src="images/nextup-maybe.webp"
+               alt="The Maybe page in Nextup, a grid of posters for shows not currently being followed, each with a Start watching button."
+               width="1400" height="972" loading="lazy" decoding="async">
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="feature-lead flip">
+      <figure>
+        <div class="shot">
+          <img src="images/nextup-films.webp"
+               alt="The Films page in Nextup, split into Ready to watch with service names under each poster, and Coming to streaming listing films with their streaming dates."
+               width="1400" height="1147" loading="lazy" decoding="async">
+        </div>
+      </figure>
+      <div>
+        <h2>Films, and when you can actually watch them</h2>
+        <p>
+          A cinema release date is not much use if you wait for things to arrive on
+          a service you already pay for. So Nextup reads the digital, physical and
+          television release dates a film has been given, prefers the UK one, and
+          shows you that date instead.
+        </p>
+        <p>
+          It also lists which UK services carry a film right now. Subscription,
+          free and ad-supported services are named. Rental and purchase are left
+          out on purpose, because the question is what you can put on tonight
+          without paying for it twice.
+        </p>
+        <p>
+          The Films page splits into three: ready to watch, coming to streaming,
+          and seen. Anything without a date yet has a button to ask TMDB again.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <div class="section-head">
       <h2>The rest of it</h2>
     </div>
     <div class="feature-grid">
       <div class="card">
         <span class="card-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         </span>
-        <h3>Films as well as shows</h3>
+        <h3>How much of your life</h3>
         <p>
-          A separate list for films you mean to watch and films you have seen.
-          The same search adds either.
+          The dashboard adds up every episode you have ticked off and turns it
+          into days and hours. Read that figure however you like.
         </p>
       </div>
       <div class="card">
@@ -293,7 +366,7 @@
     </div>
     <ul class="plain-list">
       <li><span class="tick" aria-hidden="true">&#10003;</span><span><strong>Artwork is fetched once and then served by Nextup itself.</strong> Posters are cached in your data directory, so no page in the app ever points your browser at a third-party host.</span></li>
-      <li><span class="tick" aria-hidden="true">&#10003;</span><span><strong>The only outbound calls are to TMDB</strong>, made by the server, to look up the shows you asked for and to fetch their artwork.</span></li>
+      <li><span class="tick" aria-hidden="true">&#10003;</span><span><strong>The only outbound calls are to TMDB</strong>, made by the server, to look up the shows and films you asked for, to fetch their artwork, and to ask when a film reaches streaming.</span></li>
       <li><span class="cross" aria-hidden="true">&#10007;</span><span><strong>No analytics, no telemetry, no crash reporting</strong> and no third-party scripts, in the app or on this page.</span></li>
       <li><span class="cross" aria-hidden="true">&#10007;</span><span><strong>No account with us</strong>, because there is no us. Nextup has no server of its own to phone.</span></li>
       <li><span class="tick" aria-hidden="true">&#10003;</span><span><strong>Two cookies, both yours.</strong> One keeps you signed in, one remembers whether you chose light or dark. Neither leaves your server and neither tracks anything.</span></li>
@@ -418,11 +491,11 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       </figure>
       <figure>
         <div class="shot">
-          <img src="images/nextup-films.webp"
-               alt="The Films page in Nextup, with a to-watch grid above a seen grid."
-               width="1400" height="972" loading="lazy" decoding="async">
+          <img src="images/nextup-show.webp"
+               alt="A show page in Nextup, listing seasons with tick counts and the episodes of the current season."
+               width="1400" height="1147" loading="lazy" decoding="async">
         </div>
-        <figcaption>Films, split into to watch and seen.</figcaption>
+        <figcaption>A show page, season by season.</figcaption>
       </figure>
     </div>
   </div>
@@ -446,6 +519,12 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
 
       <dt>Where is my data kept?</dt>
       <dd>In one directory on your own server. A single SQLite database holds your shows and watch history, alongside the encryption key and the cached artwork. Backing up that directory backs up everything.</dd>
+
+      <dt>Can I keep a list of shows I might watch one day?</dt>
+      <dd>Yes, that is the Maybe list. Anything on it keeps its poster and its next air date but stays out of Next up, the calendar and Coming soon, so it never makes you look behind on something you never started. One button moves it across when you decide to watch it.</dd>
+
+      <dt>How does it know when a film reaches streaming?</dt>
+      <dd>TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes. Rental and purchase are left out.</dd>
 
       <dt>How do I update it?</dt>
       <dd>Run <code>docker compose pull</code>, then <code>docker compose down</code> and <code>docker compose up -d</code>. A plain <code>up -d</code> will not fetch a newer image on its own.</dd>
@@ -499,8 +578,9 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       </p>
       <p>
         This product uses the TMDB API but is not endorsed or certified by TMDB.
-        Show and film artwork shown in the screenshots is supplied by TMDB and
-        belongs to its respective owners.
+        Streaming availability is supplied by JustWatch through TMDB. Show and
+        film artwork in the screenshots comes from TMDB and belongs to its
+        respective owners.
       </p>
       <!-- Update this date whenever the content of this page changes. -->
       <p>Page last updated 2 September 2026.</p>
