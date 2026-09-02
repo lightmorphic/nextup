@@ -2,6 +2,23 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.6.0] — 2026-09-02
+
+### Added
+- A setting for **when something counts as watchable**. A programme going out at
+  eleven at night is not really available until the next day, so Nextup now
+  waits a number of days you choose before putting it in Next up, moving a film
+  into Ready to watch, or mentioning it in the email. The default is one day.
+  Nought restores the old behaviour of counting it the day it airs.
+- A **morning email**. Mail server details go in the Settings page, with the
+  password stored encrypted alongside the TMDB key. Once a day it sends a short
+  list of what has become watchable, in plain text and simple HTML. If nothing
+  has, nothing is sent.
+- Buttons to send a test message and to send today's email straight away,
+  so the settings can be proved without waiting until morning.
+- `TZ` in the compose file, since the send hour and the meaning of "today" both
+  depend on the container's clock.
+
 ## [0.5.2] — 2026-09-02
 
 ### Fixed

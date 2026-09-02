@@ -797,3 +797,15 @@ textarea { min-height: 120px; resize: vertical; }
 }
 .cal-key-tv { background: var(--accent-container); border: 1px solid var(--accent); }
 .cal-key-film { background: var(--info-bg); border: 1px solid var(--info); margin-left: 10px; }
+
+/* Selects match the text inputs beside them. */
+select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 18px center, right 13px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px; }

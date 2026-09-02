@@ -29,6 +29,11 @@ and nothing phoning home.
 - **Detail worth reading** — show and film pages carry the cast with
   photographs, genres, the certificate, the tagline, who made it, which UK
   services carry it, and links to a trailer and IMDb.
+- **A morning email** — one short message a day listing what has become
+  watchable. Mail server details go in the Settings page, password encrypted.
+- **A watchable-after setting** — something that airs at eleven at night is not
+  really available until the next day, so Nextup waits however long you say
+  before it counts. This governs Next up, the films list and the email alike.
 - **Search** — shows and films from TMDB, added in one click.
 
 Data comes from [TMDB](https://www.themoviedb.org/). Tracked shows refresh
@@ -83,6 +88,7 @@ docker compose up -d
 | `NEXTUP_DATA_DIR` | `/data` | Where the database, encryption key and poster cache live |
 | `NEXTUP_PORT` | `8080` | Port inside the container |
 | `NEXTUP_SYNC_HOURS` | `12` | Hours between automatic refreshes |
+| `TZ` | unset | Your timezone, for example `Europe/London`. The morning email and the meaning of "today" both read the clock |
 
 Everything else — the TMDB key, your password, the accent colour — is set in the
 app itself.
