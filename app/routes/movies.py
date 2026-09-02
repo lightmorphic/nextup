@@ -4,19 +4,13 @@ from flask import Blueprint, abort, flash, redirect, render_template, request, u
 
 from .. import db, queries, sync, tmdb
 from ..auth import login_required
+from ..redirects import back_to
 
 bp = Blueprint("movies", __name__)
 
 
 def _now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
-
-
-def _back(default_endpoint="movies.index"):
-    target = request.form.get("next") or request.referrer
-    if target and target.startswith("/"):
-        return redirect(target)
-    return redirect(url_for(default_endpoint))
 
 
 @bp.route("/movies")
@@ -56,20 +50,20 @@ def track(movie_id):
         sync.upsert_movie(payload)
     except tmdb.TmdbError as exc:
         flash(str(exc), "error")
-        return _back()
+        return back_to("movies.index")
     db.execute(
         "INSERT OR IGNORE INTO tracked_movie (movie_id, added_at) VALUES (?, ?)",
         (movie_id, _now()),
     )
     flash(f"Added {payload.get('title')} to your films.", "success")
-    return _back()
+    return back_to("movies.index")
 
 
 @bp.route("/movie/<int:movie_id>/untrack", methods=["POST"])
 @login_required
 def untrack(movie_id):
     db.execute("DELETE FROM tracked_movie WHERE movie_id = ?", (movie_id,))
-    return _back()
+    return back_to("movies.index")
 
 
 @bp.route("/movie/<int:movie_id>/watched", methods=["POST"])
@@ -84,4 +78,4 @@ def watched(movie_id):
         "UPDATE tracked_movie SET watched_at = ? WHERE movie_id = ?",
         (None if row["watched_at"] else _now(), movie_id),
     )
-    return _back()
+    return back_to("movies.index")
