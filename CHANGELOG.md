@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.8.1] — 2026-09-02
+
+### Fixed
+- On a middling screen the search box dropped to a second row and sat against
+  the right edge with a wide gap beside it. When it wraps it now takes the whole
+  row.
+
 ## [0.8.0] — 2026-09-02
 
 ### Changed

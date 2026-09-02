@@ -75,3 +75,15 @@ def test_the_note_styling_is_not_a_banner():
     block = css[css.index(".note {"):]
     block = block[: block.index("}")]
     assert "border-left" in block
+
+
+def test_the_search_row_fills_the_width_when_it_wraps():
+    """Otherwise it sits marooned against the right edge with a gap beside it."""
+    import pathlib
+
+    css = (pathlib.Path(__file__).resolve().parent.parent
+           / "app" / "static" / "css" / "main.css").read_text()
+    block = css[css.index("@media (max-width: 1080px)"):]
+    block = block[: block.index("}\n}") + 2]
+    assert "flex: 1 1 100%" in block
+    assert ".searchbox input { width: 100%; }" in block
