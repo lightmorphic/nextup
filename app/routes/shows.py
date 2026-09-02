@@ -4,19 +4,13 @@ from flask import Blueprint, abort, flash, redirect, render_template, request, u
 
 from .. import db, queries, sync, tmdb
 from ..auth import login_required
+from ..redirects import back_to
 
 bp = Blueprint("shows", __name__)
 
 
 def _now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
-
-
-def _back(default_endpoint="shows.index"):
-    target = request.form.get("next") or request.referrer
-    if target and target.startswith("/"):
-        return redirect(target)
-    return redirect(url_for(default_endpoint))
 
 
 @bp.route("/shows")
@@ -80,14 +74,14 @@ def track(show_id):
         name = sync.sync_show(show_id)
     except tmdb.TmdbError as exc:
         flash(str(exc), "error")
-        return _back()
+        return back_to("main.search", q="")
     db.execute(
         "INSERT INTO tracked_show (show_id, added_at) VALUES (?, ?)"
         " ON CONFLICT(show_id) DO UPDATE SET archived = 0",
         (show_id, _now()),
     )
     flash(f"Added {name} to your shows.", "success")
-    return _back("shows.index")
+    return back_to("shows.index")
 
 
 @bp.route("/show/<int:show_id>/untrack", methods=["POST"])
@@ -96,7 +90,7 @@ def untrack(show_id):
     db.execute("DELETE FROM tracked_show WHERE show_id = ?", (show_id,))
     db.execute("DELETE FROM watched_episode WHERE show_id = ?", (show_id,))
     flash("Removed from your shows, along with its watched history.", "success")
-    return _back("shows.index")
+    return back_to("shows.index")
 
 
 @bp.route("/show/<int:show_id>/archive", methods=["POST"])
@@ -109,7 +103,7 @@ def archive(show_id):
         "UPDATE tracked_show SET archived = ? WHERE show_id = ?",
         (0 if row["archived"] else 1, show_id),
     )
-    return _back("shows.index")
+    return back_to("shows.index")
 
 
 @bp.route("/show/<int:show_id>/favourite", methods=["POST"])
@@ -122,7 +116,7 @@ def favourite(show_id):
         "UPDATE tracked_show SET favourite = ? WHERE show_id = ?",
         (0 if row["favourite"] else 1, show_id),
     )
-    return _back("shows.index")
+    return back_to("shows.index")
 
 
 @bp.route("/show/<int:show_id>/refresh", methods=["POST"])
@@ -133,7 +127,7 @@ def refresh(show_id):
         flash("Refreshed from TMDB.", "success")
     except tmdb.TmdbError as exc:
         flash(str(exc), "error")
-    return _back("shows.detail")
+    return back_to("shows.detail", show_id=show_id)
 
 
 @bp.route("/episode/<int:episode_id>/watch", methods=["POST"])
@@ -152,7 +146,7 @@ def watch_episode(episode_id):
             "INSERT INTO watched_episode (episode_id, show_id, watched_at) VALUES (?, ?, ?)",
             (episode_id, row["show_id"], _now()),
         )
-    return _back("main.dashboard")
+    return back_to("main.dashboard")
 
 
 @bp.route("/show/<int:show_id>/watch-through/<int:episode_id>", methods=["POST"])
@@ -184,7 +178,7 @@ def watch_through(show_id, episode_id):
     )
     conn.commit()
     flash(f"Marked {len(rows)} episode{'s' if len(rows) != 1 else ''} as watched.", "success")
-    return _back("shows.detail")
+    return back_to("shows.detail", show_id=show_id)
 
 
 @bp.route("/show/<int:show_id>/season/<int:season_number>/watch", methods=["POST"])
@@ -210,4 +204,4 @@ def watch_season(show_id, season_number):
             [(row["id"], show_id, _now()) for row in rows],
         )
         conn.commit()
-    return _back("shows.detail")
+    return back_to("shows.detail", show_id=show_id)
