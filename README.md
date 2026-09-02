@@ -12,7 +12,8 @@ and nothing phoning home.
   ones you are behind on.
 - **Show page** — every season and episode, tick them off one at a time, a whole
   season at once, or "up to here" for catching up.
-- **Calendar** — a month at a glance of when your shows air.
+- **Calendar** — a month at a glance: episodes of your shows in yellow, films
+  reaching home viewing in blue, each labelled so colour is not the only signal.
 - **Coming soon** — the next 14 to 180 days as a plain list.
 - **Maybe** — shows you fancy the look of but are not following. They stay out
   of Next up and the calendar until you decide to watch one.

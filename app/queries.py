@@ -151,6 +151,21 @@ def episodes_between(start_iso, end_iso):
     )
 
 
+def films_between(start_iso, end_iso):
+    """Films reaching home viewing inside a date range, for the calendar."""
+    return db.query(
+        """
+        SELECT m.*, t.watched_at FROM movie m
+        JOIN tracked_movie t ON t.movie_id = m.id
+        WHERE t.shortlist = 0
+          AND m.digital_release IS NOT NULL
+          AND m.digital_release >= ? AND m.digital_release <= ?
+        ORDER BY m.digital_release, m.title COLLATE NOCASE
+        """,
+        (start_iso, end_iso),
+    )
+
+
 def show_seasons(show_id):
     """Every episode grouped by season, with a watched flag on each."""
     rows = db.query(

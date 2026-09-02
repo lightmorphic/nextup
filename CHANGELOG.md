@@ -2,6 +2,18 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.5.0] — 2026-09-02
+
+### Added
+- Films now appear on the calendar, on the day they reach home viewing, in blue
+  against the yellow used for episodes. Every entry is also labelled, so the two
+  are told apart by more than colour, and a small key sits above the month.
+- Films you have already seen are faded on the calendar the same way watched
+  episodes are, rather than disappearing.
+
+### Changed
+- Films on the maybe list stay off the calendar, matching how maybe shows behave.
+
 ## [0.4.0] — 2026-09-02
 
 ### Added
