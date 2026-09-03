@@ -141,9 +141,17 @@
           <input id="site_url" name="site_url" type="text" autocomplete="off"
                  placeholder="https://homelab.example.ts.net:4090" value="{{ mail.base_url }}">
           <p class="hint">
-            Used to link each item in the email back to its page here. Leave it
-            blank and the email still lists everything, just with nothing to click.
+            Used to link each item in the email back to its page here. The cover
+            and the title both become links. Leave it blank and the email still
+            lists everything, just with nothing to click.
           </p>
+          {% if mail.enabled and not mail.base_url %}
+            <p class="note note-info">
+              <span class="note-mark" aria-hidden="true">i</span>
+              <span>The email is on but this box is empty, so nothing in it can be
+              clicked yet.</span>
+            </p>
+          {% endif %}
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" type="submit">Save mail settings</button>

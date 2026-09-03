@@ -2,6 +2,15 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.9.2] — 2026-09-03
+
+### Changed
+- A linked cover in the email now says it carries no border, because some mail
+  clients ring a linked picture in blue otherwise.
+- The Settings page says so plainly when the email is switched on but the
+  address box is empty, since that is the one thing that stops anything in the
+  email being clickable.
+
 ## [0.9.1] — 2026-09-03
 
 ### Fixed

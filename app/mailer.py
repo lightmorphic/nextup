@@ -370,7 +370,12 @@ def _html_section(title, rows):
                 f'<div style="width:76px;height:114px;border-radius:8px;background:{WASH}"></div>'
             )
         if url:
-            picture = f'<a href="{_esc(url)}">{picture}</a>'
+            # Some mail clients draw a border round a linked image unless told
+            # not to, so the anchor says so rather than relying on a default.
+            picture = (
+                f'<a href="{_esc(url)}" style="display:block;border:0;'
+                f'text-decoration:none">{picture}</a>'
+            )
 
         detail = (
             f'<p style="margin:4px 0 0;font:400 13px/1.45 {FONT};color:{MUTED}">'
