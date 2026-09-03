@@ -16,6 +16,9 @@
   --panel: #ffffff;  --panel-border: rgba(24, 24, 40, 0.10);
   --border: #e4e4e7;  --muted: #f4f4f5;  --muted-fg: #71717a;
   --shadow-panel: 0 1px 2px rgba(24,24,40,.05), 0 8px 24px -16px rgba(24,24,40,.18);
+  /* A field has to be findable. Its edge clears 3:1 against the panel behind
+     it, which the faint grey it used to use came nowhere near. */
+  --field: #ffffff;  --field-border: #84848d;
 
   --accent: #fbc711;  --accent-hover: #ddaf0f;  --on-accent: #645007;
   --accent-container: #fff8e2;  --on-accent-container: #5f4c06;
@@ -37,6 +40,7 @@
     --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
     --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
     --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
+    --field: #12131c;  --field-border: #666a82;
     --accent-container: #4b3c05;  --on-accent-container: #fde694;
     --link: #2295f1;
     --danger: #f34236;   --danger-bg: #350f0c;
@@ -51,6 +55,7 @@
   --panel: #1b1d29;  --panel-border: rgba(255,255,255,.09);
   --border: #27272a;  --muted: #1c1c1f;  --muted-fg: #a1a1aa;
   --shadow-panel: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -16px rgba(0,0,0,.6);
+  --field: #12131c;  --field-border: #666a82;
   --accent-container: #4b3c05;  --on-accent-container: #fde694;
   --link: #2295f1;
   --danger: #f34236;   --danger-bg: #350f0c;
@@ -173,12 +178,12 @@ h3 { font-size: 1.0625rem; }
 .searchbox { display: flex; align-items: center; gap: 0; min-width: 0; flex: 0 1 auto; }
 .searchbox input {
   width: clamp(9rem, 18vw, 15rem); padding: 8px 12px;
-  border: 1px solid var(--border); border-right: 0;
+  border: 1px solid var(--field-border); border-right: 0;
   border-radius: var(--radius) 0 0 var(--radius);
   background: var(--panel); color: var(--fg); font: inherit; font-size: 0.9375rem;
 }
 .searchbox button {
-  padding: 8px 12px; border: 1px solid var(--border);
+  padding: 8px 12px; border: 1px solid var(--field-border);
   border-radius: 0 var(--radius) var(--radius) 0;
   background: var(--muted); color: var(--fg); cursor: pointer;
   display: grid; place-items: center;
@@ -249,12 +254,14 @@ h3 { font-size: 1.0625rem; }
 label { display: block; font-size: 0.9375rem; font-weight: 600; margin-bottom: 6px; }
 
 input[type="text"], input[type="password"], input[type="search"],
-input[type="number"], select, textarea {
+input[type="number"], input[type="file"], select, textarea {
   display: block; width: 100%; box-sizing: border-box;
   padding: 10px 13px;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--panel); color: var(--fg); font: inherit;
+  border: 1px solid var(--field-border); border-radius: var(--radius);
+  background: var(--field); color: var(--fg); font: inherit;
 }
+input:hover, select:hover, textarea:hover { border-color: var(--fg); }
+::placeholder { color: var(--muted-fg); opacity: 1; }
 textarea { min-height: 120px; resize: vertical; }
 
 .field { margin-bottom: 18px; }

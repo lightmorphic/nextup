@@ -2,6 +2,26 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.0] — 2026-09-03
+
+### Added
+- **Backup and restore.** One button writes everything to a single JSON file:
+  every show and film, everything watched, what was dismissed, your settings,
+  and enough show detail that a restored copy works before it has spoken to
+  TMDB. Another button reads it back. All of it or none of it, so a file that
+  cannot be read leaves the database exactly as it was.
+- Your TMDB key and mail password are left out of the plain download, because
+  they are encrypted with a key that stays on that server. A second button
+  includes them as plain text, and says so.
+
+### Fixed
+- Form fields were nearly invisible in dark mode: the field was the same colour
+  as the panel behind it, with an edge at 1.1 to 1 against it. Fields now have
+  their own background and an edge clearing 3 to 1 in both themes. Light mode
+  failed the same standard at 1.27 to 1 and was fixed with it.
+- The upload limit was two megabytes, which a large library's own backup would
+  have exceeded. It is now sixty-four.
+
 ## [0.9.4] — 2026-09-03
 
 ### Changed

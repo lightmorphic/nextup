@@ -246,6 +246,58 @@
       {{ n.notes_for(notes, "mail") }}
     </section>
 
+    <section class="panel" id="transfer">
+      <div class="panel-head">
+        <h2 style="font-size:1.25rem">Take it with you</h2>
+      </div>
+      <p class="subtle">
+        One file holds every show and film you have added, everything you have
+        marked as watched, the things you said no to, and how you like Nextup set
+        up. Put it on another machine and you carry on where you left off, before
+        it has even spoken to TMDB.
+      </p>
+      <p class="hint">
+        Right now that is {{ backup.tracked_show }} show{{ '' if backup.tracked_show == 1 else 's' }},
+        {{ backup.watched_episode }} watched episode{{ '' if backup.watched_episode == 1 else 's' }},
+        {{ backup.tracked_movie }} film{{ '' if backup.tracked_movie == 1 else 's' }}
+        and {{ backup.settings }} settings.
+      </p>
+
+      <div class="btn-row" style="margin-bottom:8px">
+        <a class="btn btn-primary" href="{{ url_for('settings.export_data') }}">Download a backup</a>
+        <a class="btn" href="{{ url_for('settings.export_data', secrets=1) }}"
+           title="The same file, with your TMDB key and mail password written into it as plain text">
+          Include my keys
+        </a>
+      </div>
+      <p class="hint">
+        The plain download leaves your TMDB key and mail password out, because
+        they are encrypted with a key that stays on this server and cannot travel.
+        You would type those two back in. The second button puts them in the file
+        readable by anyone who opens it, so keep that one somewhere safe.
+      </p>
+
+      <form method="post" action="{{ url_for('settings.import_data') }}"
+            enctype="multipart/form-data"
+            style="margin-top:22px; border-top:1px solid var(--border); padding-top:18px">
+        <div class="field">
+          <label for="backup">Restore from a backup</label>
+          <input id="backup" name="backup" type="file" accept="application/json,.json" required>
+        </div>
+        <div class="field">
+          <label class="hint" style="font-weight:400; display:flex; gap:8px; align-items:flex-start">
+            <input type="checkbox" name="confirm" value="replace" style="width:auto; flex:none" required>
+            <span>I understand this replaces everything currently in Nextup.</span>
+          </label>
+        </div>
+        <button class="btn" type="submit">Restore</button>
+        <p class="hint" style="margin-top:10px">
+          All of it or none of it. If the file cannot be read, nothing is touched.
+        </p>
+      </form>
+      {{ n.notes_for(notes, "transfer") }}
+    </section>
+
     <section class="panel" id="account">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Sign in</h2>

@@ -108,6 +108,17 @@ listening publicly:
 Everything else — the TMDB key, your password, the accent colour — is set in the
 app itself.
 
+## Taking it with you
+
+The Settings page has a **Download a backup** button. One JSON file holds every
+show and film you added, everything you marked watched, what you dismissed, and
+your settings, alongside enough show detail for a fresh copy to be usable
+immediately. Restore it on another machine and you carry on where you left off.
+
+Your TMDB key and mail password are left out by default, because they are
+encrypted with a key that stays on that server. A second button includes them,
+written into the file as plain text, so keep that one somewhere safe.
+
 ## What lives in the data directory
 
 - `nextup.db` — shows, episodes, what you have watched
