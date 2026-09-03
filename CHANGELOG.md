@@ -2,6 +2,15 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.11.1] — 2026-09-03
+
+### Fixed
+- On a medium screen the bento was only 81 per cent full: three panels sat in a
+  two-column stack, leaving a hole, and the backup panel sat alone in a
+  four-column row. Stacks now spread across whatever width they are given.
+  Measured fill is 88 per cent at desktop, 94 in the middle, 92 to 97 on a
+  tablet and 95 on a phone.
+
 ## [0.11.0] — 2026-09-03
 
 ### Changed

@@ -926,10 +926,14 @@ input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px;
   .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .bento-6, .bento-4 { grid-column: span 4; }
   .bento-3, .bento-2 { grid-column: span 2; }
-  .bento-stack {
+  /* A stack that has the full width spreads its panels across it rather than
+     leaving a hole where a fixed two columns would not divide evenly. */
+  .bento-stack.bento-2 {
     grid-column: span 4;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
   }
+  /* The other keeps half the row, beside the backup panel. */
+  .bento-stack.bento-3 { grid-column: span 2; grid-template-columns: 1fr; }
 }
 
 /* Two across, for a tablet or a big phone held sideways. */
@@ -937,12 +941,15 @@ input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px;
   .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .bento-6, .bento-4, .bento-3 { grid-column: span 2; }
   .bento-2 { grid-column: span 1; }
-  .bento-stack { grid-column: span 2; }
+  .bento-stack, .bento-stack.bento-2, .bento-stack.bento-3 {
+    grid-column: span 2;
+    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  }
 }
 
 /* One column. Everything in order, nothing side by side. */
 @media (max-width: 560px) {
   .bento { grid-template-columns: 1fr; gap: 14px; }
   .bento > .panel, .bento-stack { grid-column: 1 / -1; }
-  .bento-stack { grid-template-columns: 1fr; }
+  .bento-stack, .bento-stack.bento-2, .bento-stack.bento-3 { grid-template-columns: 1fr; }
 }
