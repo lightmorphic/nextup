@@ -287,15 +287,6 @@
     {{ n.notes_for(notes, "accent") }}
     </section>
 
-    <section class="panel">
-    <div class="panel-head"><h3>What is stored</h3></div>
-    <p class="hint" style="margin:0">
-    {{ stats.shows }} shows, {{ stats.episodes }} episodes and {{ stats.movies }} films
-    cached locally. Posters are downloaded once and served from this server, so no page
-    ever calls out to another site.
-    </p>
-    </section>
-
   </div>
 
   <section class="panel bento-3" id="transfer">
@@ -350,31 +341,43 @@
   {{ n.notes_for(notes, "transfer") }}
   </section>
 
-  <section class="panel bento-3" id="account">
-  <div class="panel-head">
-  <h2 style="font-size:1.25rem">Sign in</h2>
-  {% if default_password %}<span class="badge badge-warning">! Starter password</span>{% endif %}
+  <div class="bento-stack bento-3">
+    <section class="panel" id="account">
+    <div class="panel-head">
+    <h2 style="font-size:1.25rem">Sign in</h2>
+    {% if default_password %}<span class="badge badge-warning">! Starter password</span>{% endif %}
+    </div>
+    <form method="post" action="{{ url_for('settings.save_account') }}">
+    <div class="field">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" value="{{ user.username }}" autocomplete="username">
+    </div>
+    <div class="field-row">
+    <div class="field">
+    <label for="password">New password</label>
+    <input id="password" name="password" type="password" autocomplete="new-password">
+    </div>
+    <div class="field">
+    <label for="confirm">Repeat it</label>
+    <input id="confirm" name="confirm" type="password" autocomplete="new-password">
+    </div>
+    </div>
+    <p class="hint" style="margin-bottom:14px">At least 8 characters. Leave both blank to keep the current one.</p>
+    <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    {{ n.notes_for(notes, "account") }}
+    </section>
+
+    <section class="panel">
+    <div class="panel-head"><h3>What is stored</h3></div>
+    <p class="hint" style="margin:0">
+    {{ stats.shows }} shows, {{ stats.episodes }} episodes and {{ stats.movies }} films
+    cached locally. Posters are downloaded once and served from this server, so no page
+    ever calls out to another site.
+    </p>
+    </section>
+
   </div>
-  <form method="post" action="{{ url_for('settings.save_account') }}">
-  <div class="field">
-  <label for="username">Username</label>
-  <input id="username" name="username" type="text" value="{{ user.username }}" autocomplete="username">
-  </div>
-  <div class="field-row">
-  <div class="field">
-  <label for="password">New password</label>
-  <input id="password" name="password" type="password" autocomplete="new-password">
-  </div>
-  <div class="field">
-  <label for="confirm">Repeat it</label>
-  <input id="confirm" name="confirm" type="password" autocomplete="new-password">
-  </div>
-  </div>
-  <p class="hint" style="margin-bottom:14px">At least 8 characters. Leave both blank to keep the current one.</p>
-  <button class="btn btn-primary" type="submit">Save</button>
-  </form>
-  {{ n.notes_for(notes, "account") }}
-  </section>
 
 </div>
 {% endblock %}

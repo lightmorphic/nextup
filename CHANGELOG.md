@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.5] — 2026-09-03
+
+### Changed
+- The bento's two pairs are balanced by measurement rather than guesswork. The
+  stack beside the morning email overshot it by 230 pixels and sign-in fell 272
+  short of backup, which is where the leftover space was going.
+
 ## [0.10.4] — 2026-09-03
 
 ### Changed
