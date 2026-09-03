@@ -42,7 +42,8 @@ def create_app(start_sync=True):
         SECRET_KEY=_session_secret(),
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
-        MAX_CONTENT_LENGTH=2 * 1024 * 1024,
+        # Big enough for a backup of a large library to be uploaded back.
+        MAX_CONTENT_LENGTH=64 * 1024 * 1024,
         JSON_SORT_KEYS=False,
         TEMPLATES_AUTO_RELOAD=False,
     )

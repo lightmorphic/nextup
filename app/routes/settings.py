@@ -1,6 +1,10 @@
-from flask import Blueprint, flash, make_response, redirect, render_template, request, url_for
+import json
+from datetime import date
 
-from .. import db, mailer, queries, secretstore, sync, tmdb
+from flask import (Blueprint, Response, flash, make_response, redirect,
+                   render_template, request, url_for)
+
+from .. import db, mailer, queries, secretstore, sync, tmdb, transfer
 from ..auth import login_required, set_password, set_username, using_default_password
 
 bp = Blueprint("settings", __name__)
@@ -46,6 +50,7 @@ def index():
     return render_template(
         "pages/settings.html",
         has_key=secretstore.has("tmdb_api_key"),
+        backup=transfer.export_data()["counts"],
         mail=mailer.config(),
         mail_ready=mailer.is_configured(),
         securities=mailer.SECURITIES,
@@ -256,6 +261,53 @@ def clear_mail():
         secretstore.delete(key)
     secretstore.set("daily_email_enabled", "0")
     return notify("mail", "Mail settings removed, including the password.", "success")
+
+
+@bp.route("/settings/export")
+@login_required
+def export_data():
+    """Everything you have, as one file you can keep."""
+    include = request.args.get("secrets") == "1"
+    payload = transfer.export_data(include_secrets=include)
+    body = json.dumps(payload, indent=1, ensure_ascii=False)
+    name = f"nextup-backup-{date.today().isoformat()}.json"
+    return Response(
+        body,
+        mimetype="application/json",
+        headers={
+            "Content-Disposition": f'attachment; filename="{name}"',
+            "Content-Length": str(len(body.encode("utf-8"))),
+        },
+    )
+
+
+@bp.route("/settings/import", methods=["POST"])
+@login_required
+def import_data():
+    """Put a backup back. All of it or none of it."""
+    upload = request.files.get("backup")
+    if upload is None or not upload.filename:
+        return notify("transfer", "Choose a backup file first.", "error")
+    if request.form.get("confirm") != "replace":
+        return notify(
+            "transfer",
+            "Tick the box to say you understand this replaces everything you have now.",
+            "error",
+        )
+
+    try:
+        payload = json.loads(upload.read().decode("utf-8"))
+    except UnicodeDecodeError:
+        return notify("transfer", "That file is not text, so it is not a backup.", "error")
+    except json.JSONDecodeError as exc:
+        return notify("transfer", f"That file is not readable JSON: {exc}", "error")
+
+    try:
+        restored = transfer.import_data(payload)
+    except transfer.ImportError_ as exc:
+        return notify("transfer", str(exc), "error")
+
+    return notify("transfer", f"Restored {transfer.summarise(restored)}.", "success")
 
 
 @bp.route("/theme", methods=["POST"])
