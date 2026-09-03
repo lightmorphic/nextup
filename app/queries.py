@@ -146,7 +146,7 @@ def available_today():
     cutoff = available_cutoff_iso()
     episodes = db.query(
         """
-        SELECT e.*, s.name AS show_name, s.network,
+        SELECT e.*, s.name AS show_name, s.network, s.poster_path AS show_poster,
                (w.episode_id IS NOT NULL) AS watched
         FROM episode e
         JOIN show s ON s.id = e.show_id

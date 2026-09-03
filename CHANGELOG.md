@@ -2,6 +2,22 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.9.0] — 2026-09-03
+
+### Added
+- The morning email now shows the cover of each show and film, a couple of
+  sentences about it, and links each one back to its page in Nextup.
+- The artwork is attached to the message rather than linked, so it appears even
+  though this server is not reachable from the wider internet, and no mail
+  client ever calls out to fetch it.
+- A field in Settings for this Nextup's own address, which is what the links in
+  the email point at. Left blank, the email still lists everything, just with
+  nothing to click.
+
+### Changed
+- Poster caching moved out of the web route into its own module, so the pages
+  and the email share one copy of each picture rather than fetching it twice.
+
 ## [0.8.2] — 2026-09-02
 
 ### Changed

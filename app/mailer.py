@@ -16,9 +16,11 @@ from datetime import date, datetime, time as clock_time, timedelta
 from email.message import EmailMessage
 from email.utils import formataddr, formatdate
 
-from . import db, queries, secretstore
+from . import db, posters, queries, secretstore
 
 SITE_URL = "https://lightmorphic.com"
+POSTER_SIZE = "w185"
+SYNOPSIS_LIMIT = 190
 
 # Email clients only reliably understand inline styles and tables, so the
 # colours live here rather than in a stylesheet.
@@ -35,6 +37,35 @@ DEFAULT_HOUR = 8
 DEFAULT_TIME = "08:00"
 SECURITIES = ("starttls", "ssl", "none")
 CLOCKS = ("24", "12")
+
+
+def base_url():
+    """Where this Nextup can be reached, so the email can link back to it.
+
+    Empty by default, because only you know the address you use. Without it the
+    email still lists everything, just with nothing to click.
+    """
+    value = (secretstore.get("site_url", "") or "").strip().rstrip("/")
+    return value if value.startswith(("http://", "https://")) else ""
+
+
+def item_url(kind, item_id):
+    root = base_url()
+    return f"{root}/{kind}/{item_id}" if root else ""
+
+
+def shorten(text, limit=SYNOPSIS_LIMIT):
+    """A sentence or two of a synopsis, cut on a boundary rather than mid-word."""
+    text = " ".join((text or "").split())
+    if len(text) <= limit:
+        return text
+    window = text[: limit + 1]
+    for stop in (". ", "! ", "? "):
+        cut = window.rfind(stop)
+        if cut > limit * 0.5:
+            return window[: cut + 1]
+    cut = window.rfind(" ")
+    return (window[:cut] if cut > 0 else window[:limit]).rstrip(",;:") + "."
 
 
 def clock_format():
@@ -100,6 +131,7 @@ def config():
         "minute": when.minute,
         "meridiem": "am" if when.hour < 12 else "pm",
         "clock": clock,
+        "base_url": base_url(),
         "last_sent": secretstore.get("daily_email_last_sent", "") or "",
     }
 
@@ -143,7 +175,7 @@ def _connect(settings):
         raise MailError(f"Could not reach the mail server: {exc}") from exc
 
 
-def send(subject, text_body, html_body=None):
+def send(subject, text_body, html_body=None, images=None):
     settings = config()
     if not is_configured():
         raise MailError("Fill in the mail server, the from address and the to address first.")
@@ -157,6 +189,12 @@ def send(subject, text_body, html_body=None):
     message.set_content(text_body)
     if html_body:
         message.add_alternative(html_body, subtype="html")
+        # The artwork travels with the message. This server is not on the public
+        # internet, so a mail client could never fetch a picture back from it.
+        if images:
+            html_part = message.get_payload()[-1]
+            for cid, data, subtype in images:
+                html_part.add_related(data, "image", subtype, cid=f"<{cid}>")
 
     server = _connect(settings)
     try:
@@ -231,7 +269,8 @@ def build_digest():
     lines.append(f"Made by Lightmorphic. {SITE_URL}")
     text = "\n".join(lines)
 
-    return subject, text, _html_digest(when, episodes, films)
+    html, images = _html_digest(when, episodes, films)
+    return subject, text, html, images
 
 
 def _esc(value):
@@ -286,34 +325,73 @@ def _html_shell(heading, inner, standfirst=""):
 
 
 def _html_section(title, rows):
-    """One headed block of the email, as table rows."""
+    """One headed block. Each row is a picture, a title, a line of detail and a
+    few words of description, all linked back to its own page."""
     out = [
-        '<tr><td style="padding:26px 32px 10px 32px">'
+        '<tr><td style="padding:24px 32px 4px 32px">'
         f'<p style="margin:0;font:600 12px/1.4 {FONT};letter-spacing:.09em;'
         f'text-transform:uppercase;color:{MUTED}">{_esc(title)}</p></td></tr>'
     ]
-    for i, (headline, detail) in enumerate(rows):
-        border = "" if i == 0 else f"border-top:1px solid {LINE};"
-        out.append(
-            f'<tr><td style="padding:0 32px"><table role="presentation" width="100%" '
-            'cellpadding="0" cellspacing="0" border="0"><tr>'
-            f'<td style="{border}padding:12px 0">'
-            f'<p style="margin:0;font:600 16px/1.45 {FONT};color:{INK}">{_esc(headline)}</p>'
-            + (
-                f'<p style="margin:3px 0 0;font:400 14px/1.45 {FONT};color:{MUTED}">'
-                f"{_esc(detail)}</p>"
-                if detail
-                else ""
+    for i, row in enumerate(rows):
+        rule = "" if i == 0 else f"border-top:1px solid {LINE};"
+        url = row.get("url") or ""
+
+        headline = _esc(row["headline"])
+        if url:
+            headline = (
+                f'<a href="{_esc(url)}" style="color:{INK};text-decoration:none">{headline}</a>'
             )
-            + "</td></tr></table></td></tr>"
+
+        if row.get("cid"):
+            picture = (
+                f'<img src="cid:{row["cid"]}" width="76" alt=""'
+                ' style="display:block;width:76px;height:auto;border-radius:8px">'
+            )
+        else:
+            picture = (
+                f'<div style="width:76px;height:114px;border-radius:8px;background:{WASH}"></div>'
+            )
+        if url:
+            picture = f'<a href="{_esc(url)}">{picture}</a>'
+
+        detail = (
+            f'<p style="margin:4px 0 0;font:400 13px/1.45 {FONT};color:{MUTED}">'
+            f'{_esc(row["detail"])}</p>' if row.get("detail") else ""
+        )
+        synopsis = (
+            f'<p style="margin:8px 0 0;font:400 13px/1.5 {FONT};color:{MUTED}">'
+            f'{_esc(row["synopsis"])}</p>' if row.get("synopsis") else ""
+        )
+
+        out.append(
+            '<tr><td style="padding:0 32px">'
+            '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+            'border="0"><tr>'
+            f'<td width="76" valign="top" style="{rule}padding:14px 0">{picture}</td>'
+            f'<td valign="top" style="{rule}padding:14px 0 14px 15px">'
+            f'<p style="margin:0;font:700 16px/1.35 {FONT};color:{INK}">{headline}</p>'
+            f'{detail}{synopsis}'
+            '</td></tr></table></td></tr>'
         )
     return "".join(out)
 
 
 def _html_digest(when, episodes, films):
-    """A plain, readable email. Tables and inline styles, because that is what
-    mail clients understand, and no images, because nothing here is on the
-    public internet to load them from."""
+    """The morning email, and the pictures that travel with it.
+
+    Artwork is attached to the message rather than linked, because this server
+    is not on the public internet for a mail client to fetch anything from.
+    """
+    images = []
+
+    def attach(tmdb_path, key):
+        data, subtype = posters.read_bytes(POSTER_SIZE, tmdb_path)
+        if data is None:
+            return None
+        cid = f"nextup-{key}"
+        images.append((cid, data, subtype))
+        return cid
+
     tv_rows = []
     for row in episodes:
         code = f"S{row['season_number']:02d}E{row['episode_number']:02d}"
@@ -323,7 +401,13 @@ def _html_digest(when, episodes, films):
             detail += f" · {row['network']}"
         if row["watched"]:
             detail += " · already ticked off"
-        tv_rows.append((row["show_name"], detail))
+        tv_rows.append({
+            "headline": row["show_name"],
+            "detail": detail,
+            "synopsis": shorten(row["overview"]),
+            "cid": attach(row["show_poster"], f"ep{row['id']}"),
+            "url": item_url("episode", row["id"]),
+        })
 
     film_rows = []
     for row in films:
@@ -331,7 +415,13 @@ def _html_digest(when, episodes, films):
         detail = "On " + ", ".join(services) if services else "Out for home viewing"
         if row["runtime"]:
             detail += f" · {row['runtime']} min"
-        film_rows.append((row["title"], detail))
+        film_rows.append({
+            "headline": row["title"],
+            "detail": detail,
+            "synopsis": shorten(row["overview"]),
+            "cid": attach(row["poster_path"], f"film{row['id']}"),
+            "url": item_url("movie", row["id"]),
+        })
 
     body = ""
     if tv_rows:
@@ -388,7 +478,7 @@ Available to watch now, from {_esc(when)}.</div>
     </table>
   </td></tr>
 </table>
-</body></html>"""
+</body></html>""", images
 
 
 def send_daily(force=False):
@@ -409,8 +499,8 @@ def send_daily(force=False):
         secretstore.set("daily_email_last_sent", today)
         return "Nothing became available today, so no email was sent."
 
-    subject, text, html = digest
-    send(subject, text, html)
+    subject, text, html, images = digest
+    send(subject, text, html, images)
     secretstore.set("daily_email_last_sent", today)
     return f"Sent: {subject}"
 
