@@ -10,7 +10,7 @@
 </div>
 
 <div class="bento">
-  <section class="panel bento-6" id="tmdb">
+  <section class="panel" id="tmdb">
   <div class="panel-head">
   <h2 style="font-size:1.25rem">TMDB key</h2>
   <span class="spacer"></span>
@@ -18,19 +18,15 @@
   {% else %}<span class="badge badge-warning">! Not set</span>{% endif %}
   </div>
   <p class="subtle">
-  Nextup gets every show, episode and poster from TMDB. Make a free account,
-  then go straight to
-  <a href="https://www.themoviedb.org/settings/api" rel="noopener noreferrer">themoviedb.org/settings/api</a>
-  and copy the API Key (v3 auth). The key is checked against TMDB before it is
-  saved, then encrypted with a key that lives on the server beside the database.
+  Every show, episode and cover comes from TMDB. Copy your API Key (v3 auth)
+  from <a href="https://www.themoviedb.org/settings/api" rel="noopener noreferrer">themoviedb.org/settings/api</a>,
+  which opens on their site. It is checked before it is saved, then encrypted.
   </p>
-  <p class="hint">That link opens on TMDB's own website.</p>
   <form method="post" action="{{ url_for('settings.save_tmdb') }}">
-  <div class="field">
-  <label for="tmdb_api_key">API key</label>
+  <div class="field inline-field">
+  <label class="visually-hidden" for="tmdb_api_key">API key</label>
   <input id="tmdb_api_key" name="tmdb_api_key" type="password" autocomplete="off"
   placeholder="{{ 'Saved — paste a new one to replace it' if has_key else 'Paste your key' }}">
-  <p class="hint">Stored encrypted. Never written to a plain text file.</p>
   </div>
   <div class="btn-row">
   <button class="btn btn-primary" type="submit">Check and save</button>
@@ -45,7 +41,7 @@
   {{ n.notes_for(notes, "tmdb") }}
   </section>
 
-  <section class="panel bento-4" id="mail">
+  <section class="panel" id="mail">
   <div class="panel-head">
   <h2 style="font-size:1.25rem">Morning email</h2>
   <span class="spacer"></span>
@@ -115,11 +111,7 @@
   <label for="site_url">This Nextup's address</label>
   <input id="site_url" name="site_url" type="text" autocomplete="off"
   placeholder="https://homelab.example.ts.net:4090" value="{{ mail.base_url }}">
-  <p class="hint">
-  Used to link each item in the email back to its page here. The cover
-  and the title both become links. Leave it blank and the email still
-  lists everything, just with nothing to click.
-  </p>
+  <p class="hint">Makes the covers and titles in the email clickable.</p>
   {% if mail.enabled and not mail.base_url %}
   <p class="note note-info">
   <span class="note-mark" aria-hidden="true">i</span>
@@ -204,13 +196,11 @@
   </p>
   </div>
 
-  <div class="field">
-  <label class="hint" style="font-weight:400; display:flex; gap:8px; align-items:center">
+  <label class="hint inline-check">
   <input id="daily_email_enabled" name="daily_email_enabled" type="checkbox"
-  value="1" style="width:auto" {% if mail.enabled %}checked{% endif %}>
+  value="1" {% if mail.enabled %}checked{% endif %}>
   Email me every morning
   </label>
-  </div>
   <button class="btn" type="submit">Save schedule</button>
   {% if mail.last_sent %}
   <p class="hint" style="margin-top:10px">Last sent {{ mail.last_sent }}.</p>
@@ -219,8 +209,6 @@
   <form id="clock-form" method="post" action="{{ url_for('settings.save_clock') }}"></form>
   {{ n.notes_for(notes, "mail") }}
   </section>
-
-  <div class="bento-stack bento-2">
     <section class="panel" id="sync">
     <div class="panel-head"><h3>Refresh from TMDB</h3></div>
     <p class="hint" style="margin-top:0">
@@ -286,10 +274,7 @@
     </form>
     {{ n.notes_for(notes, "accent") }}
     </section>
-
-  </div>
-
-  <section class="panel bento-3" id="transfer">
+  <section class="panel" id="transfer">
   <div class="panel-head">
   <h2 style="font-size:1.25rem">Take it with you</h2>
   </div>
@@ -340,8 +325,6 @@
   </form>
   {{ n.notes_for(notes, "transfer") }}
   </section>
-
-  <div class="bento-stack bento-3">
     <section class="panel" id="account">
     <div class="panel-head">
     <h2 style="font-size:1.25rem">Sign in</h2>
@@ -376,8 +359,5 @@
     ever calls out to another site.
     </p>
     </section>
-
-  </div>
-
 </div>
 {% endblock %}
