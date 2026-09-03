@@ -267,7 +267,16 @@ textarea { min-height: 120px; resize: vertical; }
 .field { margin-bottom: 18px; }
 .field:last-child { margin-bottom: 0; }
 
-.field-row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+/* Fields pack across the width they are given rather than stacking down it,
+   so a wide panel gets shorter instead of leaving a field stretched across it
+   on its own. */
+.field-row {
+  display: grid; gap: 14px 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  margin-bottom: 18px;
+}
+.field-row .field { margin-bottom: 0; }
+.field-row:last-child { margin-bottom: 0; }
 
 /* ----------------------------------------------------------------- badges */
 

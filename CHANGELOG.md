@@ -2,6 +2,15 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.11.0] — 2026-09-03
+
+### Changed
+- Form fields pack across the width they are given instead of stacking down it.
+  The mail settings had five rows of fields, two of which held a single input
+  stretched across the whole panel. They are three rows now, which makes the
+  panel considerably shorter and stops the bento having to be padded out around
+  it.
+
 ## [0.10.5] — 2026-09-03
 
 ### Changed
