@@ -2,6 +2,15 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.4] — 2026-09-03
+
+### Changed
+- The bento is packed properly now. Panels are sized to their content rather
+  than stretched to a shared row height, which was what created the empty space.
+  The TMDB key runs across the top, the morning email sits beside a stack of
+  four short panels picked so the two come out level, and backup and sign-in
+  finish the bottom row. It steps from six columns to four, then two, then one.
+
 ## [0.10.3] — 2026-09-03
 
 ### Fixed
