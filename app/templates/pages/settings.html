@@ -147,7 +147,7 @@
   </div>
   </form>
 
-  <form method="post" action="{{ url_for('settings.save_mail_schedule') }}"
+  <form data-autosave method="post" action="{{ url_for('settings.save_mail_schedule') }}"
   style="margin-top:22px; border-top:1px solid var(--border); padding-top:18px">
   <div class="field">
   <span class="field-label" id="send-at-label">Send at</span>
@@ -251,7 +251,7 @@
     puts something in Next up, moves a film into Ready to watch, and puts it
     in the morning email.
     </p>
-    <form method="post" action="{{ url_for('settings.save_availability') }}">
+    <form data-autosave method="post" action="{{ url_for('settings.save_availability') }}">
     <div class="field">
     <label for="available_after_days">Wait this many days after it airs</label>
     <input id="available_after_days" name="available_after_days" type="number"
@@ -268,7 +268,7 @@
 
     <section class="panel" id="accent">
     <div class="panel-head"><h3>Accent colour</h3></div>
-    <form method="post" action="{{ url_for('settings.save_accent') }}">
+    <form data-autosave method="post" action="{{ url_for('settings.save_accent') }}">
     <div class="swatches">
     {% for key, label, hex in accents %}
     <label class="swatch">

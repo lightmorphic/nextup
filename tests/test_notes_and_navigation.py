@@ -88,3 +88,28 @@ def test_the_search_row_fills_the_width_when_it_wraps():
     block = block[: block.index("}\n}") + 2]
     assert "flex: 1 1 100%" in block
     assert ".searchbox input { width: 100%; }" in block
+
+
+def test_the_preferences_save_themselves(signed_in):
+    """Accent, the watchable delay and the email schedule need no button."""
+    body = _settings(signed_in)
+    for form_action in ("/settings/accent", "/settings/availability", "/settings/mail/schedule"):
+        chunk = body.split(f'action="{form_action}"')[0]
+        assert chunk.rstrip().endswith("<form data-autosave method=\"post\"") or \
+               "data-autosave" in body.split(form_action)[0][-200:], form_action
+
+
+def test_they_still_work_with_scripting_off(signed_in):
+    """Each auto-saving form keeps a real submit button underneath."""
+    body = _settings(signed_in)
+    for marker, button in (
+        ("settings.save_accent", "Apply colour"),
+        ("settings/availability", "Save"),
+        ("mail/schedule", "Save schedule"),
+    ):
+        assert button in body, button
+    import pathlib
+    js = (pathlib.Path(__file__).resolve().parent.parent
+          / "app" / "static" / "js" / "main.js").read_text()
+    assert "data-autosave" in js
+    assert "hidden = true" in js

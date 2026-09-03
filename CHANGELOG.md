@@ -2,6 +2,20 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.12.0] — 2026-09-03
+
+### Changed
+- The accent colour, the watchable delay and the email schedule now save
+  themselves the moment you change them. Their buttons remain underneath for
+  anyone without scripting, and are only removed once the page knows it can do
+  the job instead. The mail server, the TMDB key, the password and the restore
+  still need a deliberate press, because half-typed credentials should not save
+  themselves.
+- Buttons have an edge you can see. An ordinary button's border sat at 1.27 to 1
+  against a white panel and 1.12 to 1 in the dark, and the quiet ones had no
+  fill and no border at all, so they read as plain text. Both now use the same
+  edge as the form fields, clearing the 3 to 1 asked of a control.
+
 ## [0.11.1] — 2026-09-03
 
 ### Fixed

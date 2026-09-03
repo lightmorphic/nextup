@@ -222,14 +222,16 @@ h3 { font-size: 1.0625rem; }
 
 /* ---------------------------------------------------------------- buttons */
 
+/* A button has to look like one. The old edge sat at 1.27 to 1 against a white
+   panel, which is nothing; this one clears the 3 to 1 asked of a control. */
 .btn {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 16px; border-radius: var(--radius);
-  border: 1px solid var(--border); background: var(--muted); color: var(--fg);
+  border: 1px solid var(--field-border); background: var(--muted); color: var(--fg);
   font: inherit; font-size: 0.9375rem; font-weight: 600;
   cursor: pointer; text-decoration: none; line-height: 1.2;
 }
-.btn:hover { background: var(--border); text-decoration: none; }
+.btn:hover { background: var(--border); border-color: var(--fg); text-decoration: none; }
 .btn svg { width: 16px; height: 16px; flex: none; }
 
 .btn-primary {
@@ -240,8 +242,9 @@ h3 { font-size: 1.0625rem; }
 .btn-danger { background: var(--danger); color: #fff; border-color: transparent; }
 .btn-danger:hover { filter: brightness(0.92); }
 
-.btn-quiet { background: transparent; border-color: transparent; color: var(--muted-fg); }
-.btn-quiet:hover { background: var(--muted); color: var(--fg); }
+/* The lesser of two buttons, but still a button: no fill, a real edge. */
+.btn-quiet { background: transparent; border-color: var(--field-border); color: var(--fg); }
+.btn-quiet:hover { background: var(--muted); border-color: var(--fg); }
 
 .btn-small { padding: 6px 11px; font-size: 0.875rem; }
 .btn-block { width: 100%; justify-content: center; }
