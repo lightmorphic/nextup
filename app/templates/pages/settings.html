@@ -9,9 +9,8 @@
   </div>
 </div>
 
-<div class="split">
-  <div>
-    <section class="panel" id="tmdb">
+<div class="bento">
+  <section class="panel bento-4" id="tmdb">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">TMDB key</h2>
         <span class="spacer"></span>
@@ -46,32 +45,27 @@
       {{ n.notes_for(notes, "tmdb") }}
     </section>
 
-    <section class="panel" id="availability">
-      <div class="panel-head">
-        <h2 style="font-size:1.25rem">When something counts as watchable</h2>
-      </div>
-      <p class="subtle">
-        A programme that goes out at eleven at night is not really available
-        until the next day. This setting decides how long Nextup waits before it
-        puts something in Next up, moves a film into Ready to watch, and puts it
-        in the morning email.
+  <section class="panel bento-2" id="sync">
+      <div class="panel-head"><h3>Refresh from TMDB</h3></div>
+      <p class="hint" style="margin-top:0">
+        Runs on its own every 12 hours. Shows that have ended are checked far less often.
       </p>
-      <form method="post" action="{{ url_for('settings.save_availability') }}">
-        <div class="field">
-          <label for="available_after_days">Wait this many days after it airs</label>
-          <input id="available_after_days" name="available_after_days" type="number"
-                 min="0" max="14" step="1" value="{{ available_after }}">
-          <p class="hint">
-            0 means the day it airs. 1 means the following morning, which is the
-            usual choice if you watch things back rather than live.
-          </p>
-        </div>
-        <button class="btn btn-primary" type="submit">Save</button>
+      {% if last_sync %}
+        <p class="hint">
+          Last run {{ last_sync.started_at[:16].replace('T', ' ') }} —
+          {{ last_sync.shows_done }} show{{ '' if last_sync.shows_done == 1 else 's' }}.
+          {% if last_sync.message %}<br><span style="color:var(--danger)">! {{ last_sync.message }}</span>{% endif %}
+        </p>
+      {% endif %}
+      <form method="post" action="{{ url_for('settings.run_sync') }}">
+        <button class="btn btn-block" type="submit" {{ 'disabled' if syncing else '' }}>
+          {{ 'Refresh running…' if syncing else 'Refresh everything now' }}
+        </button>
       </form>
-      {{ n.notes_for(notes, "availability") }}
+      {{ n.notes_for(notes, "sync") }}
     </section>
 
-    <section class="panel" id="mail">
+  <section class="panel bento-4 bento-tall" id="mail">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Morning email</h2>
         <span class="spacer"></span>
@@ -246,7 +240,53 @@
       {{ n.notes_for(notes, "mail") }}
     </section>
 
-    <section class="panel" id="transfer">
+  <section class="panel bento-2" id="availability">
+      <div class="panel-head">
+        <h2 style="font-size:1.25rem">When something counts as watchable</h2>
+      </div>
+      <p class="subtle">
+        A programme that goes out at eleven at night is not really available
+        until the next day. This setting decides how long Nextup waits before it
+        puts something in Next up, moves a film into Ready to watch, and puts it
+        in the morning email.
+      </p>
+      <form method="post" action="{{ url_for('settings.save_availability') }}">
+        <div class="field">
+          <label for="available_after_days">Wait this many days after it airs</label>
+          <input id="available_after_days" name="available_after_days" type="number"
+                 min="0" max="14" step="1" value="{{ available_after }}">
+          <p class="hint">
+            0 means the day it airs. 1 means the following morning, which is the
+            usual choice if you watch things back rather than live.
+          </p>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </form>
+      {{ n.notes_for(notes, "availability") }}
+    </section>
+
+  <section class="panel bento-2" id="accent">
+      <div class="panel-head"><h3>Accent colour</h3></div>
+      <form method="post" action="{{ url_for('settings.save_accent') }}">
+        <div class="swatches">
+          {% for key, label, hex in accents %}
+            <label class="swatch">
+              <input type="radio" name="accent" value="{{ key }}"
+                     {% if accent == key %}checked{% endif %}
+                     aria-label="{{ label }}">
+              <span style="background: {{ hex }}" title="{{ label }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        <button class="btn btn-block" type="submit" style="margin-top:14px">Apply colour</button>
+      </form>
+      {{ n.notes_for(notes, "accent") }}
+    </section>
+
+  <section class="panel bento-4" id="transfer">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Take it with you</h2>
       </div>
@@ -298,7 +338,16 @@
       {{ n.notes_for(notes, "transfer") }}
     </section>
 
-    <section class="panel" id="account">
+  <section class="panel bento-2">
+      <div class="panel-head"><h3>What is stored</h3></div>
+      <p class="hint" style="margin:0">
+        {{ stats.shows }} shows, {{ stats.episodes }} episodes and {{ stats.movies }} films
+        cached locally. Posters are downloaded once and served from this server, so no page
+        ever calls out to another site.
+      </p>
+    </section>
+
+  <section class="panel bento-6" id="account">
       <div class="panel-head">
         <h2 style="font-size:1.25rem">Sign in</h2>
         {% if default_password %}<span class="badge badge-warning">! Starter password</span>{% endif %}
@@ -323,58 +372,6 @@
       </form>
       {{ n.notes_for(notes, "account") }}
     </section>
-  </div>
 
-  <aside>
-    <section class="panel" id="sync">
-      <div class="panel-head"><h3>Refresh from TMDB</h3></div>
-      <p class="hint" style="margin-top:0">
-        Runs on its own every 12 hours. Shows that have ended are checked far less often.
-      </p>
-      {% if last_sync %}
-        <p class="hint">
-          Last run {{ last_sync.started_at[:16].replace('T', ' ') }} —
-          {{ last_sync.shows_done }} show{{ '' if last_sync.shows_done == 1 else 's' }}.
-          {% if last_sync.message %}<br><span style="color:var(--danger)">! {{ last_sync.message }}</span>{% endif %}
-        </p>
-      {% endif %}
-      <form method="post" action="{{ url_for('settings.run_sync') }}">
-        <button class="btn btn-block" type="submit" {{ 'disabled' if syncing else '' }}>
-          {{ 'Refresh running…' if syncing else 'Refresh everything now' }}
-        </button>
-      </form>
-      {{ n.notes_for(notes, "sync") }}
-    </section>
-
-    <section class="panel" id="accent">
-      <div class="panel-head"><h3>Accent colour</h3></div>
-      <form method="post" action="{{ url_for('settings.save_accent') }}">
-        <div class="swatches">
-          {% for key, label, hex in accents %}
-            <label class="swatch">
-              <input type="radio" name="accent" value="{{ key }}"
-                     {% if accent == key %}checked{% endif %}
-                     aria-label="{{ label }}">
-              <span style="background: {{ hex }}" title="{{ label }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                     stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
-              </span>
-            </label>
-          {% endfor %}
-        </div>
-        <button class="btn btn-block" type="submit" style="margin-top:14px">Apply colour</button>
-      </form>
-      {{ n.notes_for(notes, "accent") }}
-    </section>
-
-    <section class="panel">
-      <div class="panel-head"><h3>What is stored</h3></div>
-      <p class="hint" style="margin:0">
-        {{ stats.shows }} shows, {{ stats.episodes }} episodes and {{ stats.movies }} films
-        cached locally. Posters are downloaded once and served from this server, so no page
-        ever calls out to another site.
-      </p>
-    </section>
-  </aside>
 </div>
 {% endblock %}

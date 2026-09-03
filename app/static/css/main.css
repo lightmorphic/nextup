@@ -889,3 +889,34 @@ input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px;
   justify-content: center;
 }
 .btn-icon svg { width: 19px; height: 19px; }
+
+/* ------------------------------------------------------------------ bento */
+
+/* Compartments of different sizes that tessellate, rather than two columns of
+   whatever happens to land in them. The sizes are chosen so the grid fills with
+   no gaps and no reshuffling, which keeps the reading order and the visual
+   order the same. */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.bento > .panel { margin: 0; min-width: 0; }
+.bento-2 { grid-column: span 2; }
+.bento-4 { grid-column: span 4; }
+.bento-6 { grid-column: span 6; }
+.bento-tall { grid-row: span 2; }
+
+/* Four across: the wide panels take the full width, the small ones pair up. */
+@media (max-width: 1100px) {
+  .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .bento-4, .bento-6 { grid-column: span 4; }
+  .bento-2 { grid-column: span 2; }
+  .bento-tall { grid-row: auto; }
+}
+
+@media (max-width: 700px) {
+  .bento { grid-template-columns: 1fr; gap: 16px; }
+  .bento > .panel { grid-column: 1 / -1; }
+}
