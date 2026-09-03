@@ -173,6 +173,11 @@ def save_mail():
     secretstore.set("mail_from", from_address)
     secretstore.set("mail_from_name", from_name or "Nextup")
     secretstore.set("mail_to", to_address)
+
+    site = (request.form.get("site_url") or "").strip().rstrip("/")
+    if site and not site.startswith(("http://", "https://")):
+        return notify("mail", "The Nextup address needs to start with http or https.", "error")
+    secretstore.set("site_url", site)
     # An empty box leaves the stored password alone rather than wiping it.
     if password:
         secretstore.set("smtp_password", password, encrypted=True)

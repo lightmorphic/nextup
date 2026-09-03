@@ -125,7 +125,7 @@ def test_the_email_carries_the_name_and_the_credit(app):
 
     with app.app_context():
         _seed_ready(app)
-        subject, text, html = mailer.build_digest()
+        subject, text, html, _images = mailer.build_digest()
         assert ">Nextup<" in html
         assert "Made by" in html
         assert 'href="https://lightmorphic.com"' in html
@@ -137,7 +137,7 @@ def test_the_email_names_what_is_ready_and_where(app):
 
     with app.app_context():
         _seed_ready(app)
-        _subject, text, html = mailer.build_digest()
+        _subject, text, html, _images = mailer.build_digest()
         assert "A Series" in html and "S02E04" in html
         assert "BBC One" in html
         assert "A Good Film" in html and "Netflix" in html
@@ -150,7 +150,7 @@ def test_the_email_loads_nothing_from_anywhere_else(app):
 
     with app.app_context():
         _seed_ready(app)
-        _subject, _text, html = mailer.build_digest()
+        _subject, _text, html, _images = mailer.build_digest()
         assert "<img" not in html
         assert "url(" not in html
         assert html.count("http") == html.count("https://lightmorphic.com")

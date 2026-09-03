@@ -137,7 +137,7 @@ def test_a_detail_page_still_renders_when_tmdb_is_down(signed_in, app, monkeypat
 
 def test_the_image_proxy_accepts_a_profile_path(signed_in):
     """Profile filenames can carry dashes and underscores, unlike posters."""
-    from app.routes.images import PATH_RE
+    from app.posters import PATH_RE
 
     assert PATH_RE.match("/8Ac2mfkQiCJj5nDNMMBQZLwEEEG.jpg")
     assert PATH_RE.match("/a-b_c.png")

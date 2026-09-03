@@ -136,6 +136,15 @@
                    placeholder="you@example.com" value="{{ mail.to_address }}">
           </div>
         </div>
+        <div class="field">
+          <label for="site_url">This Nextup's address</label>
+          <input id="site_url" name="site_url" type="text" autocomplete="off"
+                 placeholder="https://homelab.example.ts.net:4090" value="{{ mail.base_url }}">
+          <p class="hint">
+            Used to link each item in the email back to its page here. Leave it
+            blank and the email still lists everything, just with nothing to click.
+          </p>
+        </div>
         <div class="btn-row">
           <button class="btn btn-primary" type="submit">Save mail settings</button>
           {% if mail_ready %}
