@@ -74,7 +74,6 @@
   <input id="smtp_port" name="smtp_port" type="number" min="1" max="65535"
   value="{{ mail.port }}">
   </div>
-  </div>
   <div class="field">
   <label for="smtp_security">Security</label>
   <select id="smtp_security" name="smtp_security">
@@ -86,6 +85,7 @@
   </option>
   {% endfor %}
   </select>
+  </div>
   </div>
   <div class="field-row">
   <div class="field">
@@ -111,7 +111,6 @@
   <input id="mail_to" name="mail_to" type="text" autocomplete="off"
   placeholder="you@example.com" value="{{ mail.to_address }}">
   </div>
-  </div>
   <div class="field">
   <label for="site_url">This Nextup's address</label>
   <input id="site_url" name="site_url" type="text" autocomplete="off"
@@ -128,6 +127,7 @@
   clicked yet.</span>
   </p>
   {% endif %}
+  </div>
   </div>
   <div class="btn-row">
   <button class="btn btn-primary" type="submit">Save mail settings</button>
