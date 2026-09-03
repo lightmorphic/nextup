@@ -148,3 +148,41 @@ def test_the_plain_text_carries_the_description_and_the_link(app, monkeypatch):
         assert "A film about something." in text
         assert "https://home.example.ts.net:4090/episode/5001" in text
         assert "https://home.example.ts.net:4090/movie/501" in text
+
+
+def test_both_the_cover_and_the_title_are_clickable(app, monkeypatch):
+    """One click from either, straight to the page here."""
+    import re
+
+    from app import mailer, secretstore
+
+    _fake_posters(monkeypatch)
+    with app.app_context():
+        secretstore.set("site_url", "https://home.example.ts.net:4090")
+        _seed(app)
+        _s, _t, html, _i = mailer.build_digest()
+
+        for kind, item in (("episode", 5001), ("movie", 501)):
+            url = f"https://home.example.ts.net:4090/{kind}/{item}"
+            # The cover: an anchor wrapping the attached image.
+            assert re.search(
+                rf'<a href="{re.escape(url)}"[^>]*>\s*<img src="cid:', html
+            ), f"cover not linked for {kind}"
+            # The title: an anchor wrapping words, not an image.
+            assert re.search(
+                rf'<a href="{re.escape(url)}"[^>]*>[A-Za-z]', html
+            ), f"title not linked for {kind}"
+
+
+def test_a_linked_cover_carries_no_border(app, monkeypatch):
+    """Otherwise some mail clients ring it in blue."""
+    from app import mailer, secretstore
+
+    _fake_posters(monkeypatch)
+    with app.app_context():
+        secretstore.set("site_url", "https://home.example.ts.net:4090")
+        _seed(app)
+        _s, _t, html, _i = mailer.build_digest()
+        anchor = html[html.index('<a href="https://home.example.ts.net:4090/episode/5001"'):]
+        anchor = anchor[: anchor.index(">") + 1]
+        assert "border:0" in anchor
