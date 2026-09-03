@@ -2,6 +2,14 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.13.1] — 2026-09-03
+
+### Fixed
+- The email panel takes the full width now. Squeezed into a masonry column its
+  fields stacked one per row and it grew twice as tall as anything else, which
+  left its column running well past the others. Across the whole width the
+  fields pack three to a row and it is short and wide instead.
+
 ## [0.13.0] — 2026-09-03
 
 ### Changed

@@ -916,6 +916,15 @@ input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px;
   width: 100%;
 }
 
+/* The one panel wide enough to be worth the whole row. Across the full width
+   its fields pack three to a row; in a column they would stack and it would be
+   twice as tall as anything else. */
+.bento-wide {
+  column-span: all;
+  -webkit-column-span: all;
+  margin-bottom: 18px;
+}
+
 @media (max-width: 1180px) { .bento { columns: 2; } }
 @media (max-width: 760px)  { .bento { columns: 1; column-gap: 0; } }
 
