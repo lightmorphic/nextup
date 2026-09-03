@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.1] — 2026-09-03
+
+### Changed
+- The privacy and cookies pages now give privacy@lightmorphic.com, and the
+  complaints page and the accessibility statement give
+  complaints@lightmorphic.com.
+
 ## [0.10.0] — 2026-09-03
 
 ### Added
