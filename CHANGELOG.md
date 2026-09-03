@@ -2,6 +2,15 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.2] — 2026-09-03
+
+### Changed
+- Settings is a bento: compartments of different sizes that tessellate, rather
+  than two columns of whatever happened to land in them. The sizes are chosen so
+  the grid fills with no gaps and nothing has to be shuffled out of order, which
+  keeps what you read in the same order as what you see. It steps down to four
+  columns, then to one.
+
 ## [0.10.1] — 2026-09-03
 
 ### Changed
