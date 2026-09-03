@@ -97,10 +97,6 @@ p:last-child { margin-bottom: 0; }
   border-radius: 6px;
 }
 
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
-  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
-}
 
 .skip {
   position: absolute; left: 12px; top: -60px; z-index: 100;
@@ -111,7 +107,6 @@ p:last-child { margin-bottom: 0; }
 .skip:focus { top: 12px; }
 
 .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
-.narrow { width: min(760px, 100% - 2.5rem); margin-inline: auto; }
 
 /* ------------------------------------------------------------------- nav */
 
@@ -140,12 +135,6 @@ p:last-child { margin-bottom: 0; }
 
 .hero { padding: clamp(3rem, 9vw, 6rem) 0 clamp(2rem, 5vw, 3.5rem); }
 .hero-inner { display: grid; gap: 2rem; max-width: 44rem; }
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 0.5rem; align-self: start;
-  padding: 0.3125rem 0.75rem; border-radius: 999px;
-  background: var(--accent-container); color: var(--on-accent-container);
-  font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.01em;
-}
 .hero p.lede {
   font-size: clamp(1.125rem, 2.2vw, 1.375rem);
   color: var(--muted-fg); max-width: 40rem; line-height: 1.55;
@@ -184,34 +173,23 @@ section { padding: clamp(2.75rem, 6vw, 4.5rem) 0; }
 .section-head { max-width: 42rem; margin-bottom: 2.25rem; }
 .section-head p { color: var(--muted-fg); margin-top: 0.75rem; }
 
-/* Deliberately uneven: the lead feature gets the room, the rest share a row. */
+/* The lead feature gets the room; a picture carries each one. */
 .feature-lead {
-  display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(1.5rem, 4vw, 3rem);
+  display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(1.5rem, 4vw, 3.25rem);
   align-items: center;
 }
 .feature-lead.flip > figure { order: -1; }
 .feature-lead > * { min-width: 0; }
 
-.feature-grid {
-  display: grid; gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  margin-top: 2rem;
+/* Two features side by side where neither needs the whole width. */
+.two-up {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: clamp(1.75rem, 4vw, 3rem);
 }
-.card {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--shadow-panel);
-  padding: 1.625rem;
-}
-.card h3 { margin-bottom: 0.5rem; }
-.card p { color: var(--muted-fg); font-size: 0.9875rem; }
-.card-mark {
-  width: 40px; height: 40px; border-radius: 12px; margin-bottom: 1rem;
-  display: grid; place-items: center;
-  background: var(--accent-container); color: var(--on-accent-container);
-}
-.card-mark svg { width: 21px; height: 21px; }
+.two-up > * { min-width: 0; }
+.two-up h3 { margin-bottom: 0.5rem; }
+.two-up p { color: var(--muted-fg); }
+.two-up figure { margin-top: 1.25rem; }
 
 .band { background: var(--muted); border-block: 1px solid var(--border); }
 
@@ -254,7 +232,6 @@ p code, li code, dd code {
 .steps h3 { margin-bottom: 0.375rem; }
 .steps p { color: var(--muted-fg); }
 
-.gallery { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 
 dl.faq { margin: 0; display: grid; gap: 1.75rem; }
 dl.faq dt { font-weight: 700; font-size: 1.0625rem; margin-bottom: 0.375rem; letter-spacing: -0.01em; }
@@ -311,10 +288,31 @@ dl.faq dd { margin: 0; color: var(--muted-fg); max-width: var(--measure); }
 }
 @media (max-width: 560px) {
   body { font-size: 1rem; }
-  .wrap, .narrow { width: min(100% - 1.75rem, 1120px); }
+  .wrap { width: min(100% - 1.75rem, 1120px); }
   .footer-cols { grid-template-columns: 1fr; }
   .site-nav .wrap { gap: 0.75rem; }
   .site-nav nav { margin-left: 0; width: 100%; }
   .btn { width: 100%; justify-content: center; }
   .hero-actions { width: 100%; }
 }
+
+/* ------------------------------------------------------------- headline */
+
+.hero h1 { max-width: 15ch; }
+/* One highlighted phrase, used once on the page and nowhere else. A rule under
+   the words rather than a wash behind them, so the letters keep their own
+   contrast against the page whichever theme is on. */
+.mark { box-shadow: inset 0 -0.14em 0 var(--accent); }
+
+.hero-note {
+  margin-top: 0.25rem; font-size: 0.9375rem; color: var(--muted-fg);
+}
+
+/* A screenshot wide enough to read, sitting under the headline. */
+.stage { padding-bottom: clamp(1rem, 3vw, 2rem); }
+.stage .shot { max-width: 1000px; margin-inline: auto; }
+
+/* The email, shown at the size it actually arrives. */
+.letter { max-width: 420px; }
+.letter .shot { border-radius: 16px; }
+
