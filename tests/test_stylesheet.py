@@ -109,3 +109,22 @@ def test_no_toast_banners_remain():
     templates = (CSS.parent.parent.parent / "templates")
     for page in templates.rglob("*.html"):
         assert 'class="flash' not in page.read_text(encoding="utf-8"), page.name
+
+
+def test_controls_have_an_edge_you_can_actually_see():
+    """A button whose border matches its background is indistinguishable from
+    text. Both button styles and the form fields use the same visible edge."""
+    css = stylesheet()
+    for rule in (".btn {", ".btn-quiet {"):
+        block = css[css.index(rule):]
+        block = block[: block.index("}")]
+        assert "var(--field-border)" in block, f"{rule} has no visible edge"
+    assert "--field-border: #84848d" in css   # light, 3.71 against white
+    assert "--field-border: #666a82" in css   # dark, 3.15 against the panel
+
+
+def test_a_quiet_button_is_still_a_button():
+    css = stylesheet()
+    block = css[css.index(".btn-quiet {"):]
+    block = block[: block.index("}")]
+    assert "border-color: transparent" not in block

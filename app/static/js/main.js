@@ -35,6 +35,20 @@
     });
   });
 
+  // Preferences save themselves when you change them. Their buttons stay in the
+  // markup for anyone without scripting, and are only removed once we know we
+  // can do the job instead.
+  document.querySelectorAll('form[data-autosave]').forEach(function (form) {
+    var button = form.querySelector('button[type="submit"], button:not([type])');
+    if (button) { button.hidden = true; }
+    var pending = null;
+    form.addEventListener('change', function () {
+      window.clearTimeout(pending);
+      // A moment's grace, so typing into a number box does not save twice.
+      pending = window.setTimeout(function () { form.submit(); }, 250);
+    });
+  });
+
   // The clock switch applies itself. Its button is the fallback for anyone
   // without scripting, so it is only removed once we know we can replace it.
   var clockToggle = document.querySelector('.clock-toggle');
