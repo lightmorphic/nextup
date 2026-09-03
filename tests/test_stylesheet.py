@@ -74,3 +74,38 @@ def test_status_is_still_distinguishable_without_colour():
     assert "note-mark" in note
     # A tick for good news, an exclamation for bad, in the markup itself.
     assert "'!' if item.kind == 'error' else" in note
+
+
+def test_no_decorative_underlines():
+    """Underlining as decoration is banned. Link hover underlines stay, because
+    without them an inline link is told apart by colour alone."""
+    offenders = []
+    for name, css in (("app", stylesheet()), ("site", SITE_CSS.read_text(encoding="utf-8"))):
+        body = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        for rule in body.split("}"):
+            selector, _, block = rule.rpartition("{")
+            selector = selector.strip().splitlines()[-1] if selector.strip() else ""
+            if not block.strip():
+                continue
+            # The fake-underline trick: an inset shadow hugging the bottom edge.
+            if re.search(r"box-shadow:\s*inset 0 -[\d.]+e?m? 0", block):
+                offenders.append(f"{name}: {selector} uses an inset shadow as an underline")
+            if "text-decoration" in block and "underline" in block:
+                if ":hover" not in selector and ":focus" not in selector:
+                    offenders.append(f"{name}: {selector} underlines text outright")
+    assert not offenders, "decorative underlines found:\n" + "\n".join(offenders)
+
+
+def test_no_left_hand_edges_on_boxes():
+    for name, css in (("app", stylesheet()), ("site", SITE_CSS.read_text(encoding="utf-8"))):
+        body = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        assert "border-left" not in body, f"{name} has a left-hand edge"
+
+
+def test_no_toast_banners_remain():
+    """Confirmations belong beside the control, not in a banner at the top."""
+    css = stylesheet() + SITE_CSS.read_text(encoding="utf-8")
+    assert ".flash" not in css
+    templates = (CSS.parent.parent.parent / "templates")
+    for page in templates.rglob("*.html"):
+        assert 'class="flash' not in page.read_text(encoding="utf-8"), page.name

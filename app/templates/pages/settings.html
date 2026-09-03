@@ -19,11 +19,13 @@
         {% else %}<span class="badge badge-warning">! Not set</span>{% endif %}
       </div>
       <p class="subtle">
-        Nextup gets every show, episode and poster from TMDB. Make a free account at
-        themoviedb.org, open Settings then API, and copy the API Key (v3 auth).
-        The key is checked against TMDB before it is saved, then encrypted with a key
-        that lives on the server beside the database.
+        Nextup gets every show, episode and poster from TMDB. Make a free account,
+        then go straight to
+        <a href="https://www.themoviedb.org/settings/api" rel="noopener noreferrer">themoviedb.org/settings/api</a>
+        and copy the API Key (v3 auth). The key is checked against TMDB before it is
+        saved, then encrypted with a key that lives on the server beside the database.
       </p>
+      <p class="hint">That link opens on TMDB's own website.</p>
       <form method="post" action="{{ url_for('settings.save_tmdb') }}">
         <div class="field">
           <label for="tmdb_api_key">API key</label>

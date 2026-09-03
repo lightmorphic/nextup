@@ -2,6 +2,26 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.9.4] — 2026-09-03
+
+### Changed
+- The headline no longer underlines a phrase to draw the eye. It asks which
+  episode you were on, and a line beneath types out the answer, cycling through
+  real examples. With scripting off, or with reduced motion asked for, the first
+  answer simply stands.
+- The link for the TMDB key now goes straight to the page that holds it, in the
+  app, on the website and in the README, rather than to the front of the site to
+  be hunted for.
+
+### Fixed
+- Three error banners in the app were still the old top-of-page sort. They now
+  sit beside what caused them like everything else.
+
+### Added
+- Tests for three standing rules: no decorative underlining, no left-hand edges
+  on boxes, and no banner notifications. Link hover underlines are allowed, and
+  the test says why: without them an inline link is told apart by colour alone.
+
 ## [0.9.3] — 2026-09-03
 
 ### Changed

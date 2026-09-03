@@ -56,8 +56,8 @@ paste it into the Settings page, where it is checked against TMDB and then
 stored encrypted in the database. The encryption key lives beside the database
 as `secret.key` with 0600 permissions.
 
-To get one: make a free account at themoviedb.org, open Settings → API, and copy
-the **API Key (v3 auth)**.
+To get one: make a free account, then go straight to
+<https://www.themoviedb.org/settings/api> and copy the **API Key (v3 auth)**.
 
 ## Running it
 
