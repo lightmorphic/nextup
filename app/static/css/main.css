@@ -904,55 +904,34 @@ input[type="checkbox"] { accent-color: var(--accent); width: 18px; height: 18px;
 
 /* ------------------------------------------------------------------ bento */
 
-/* Compartments of different sizes packed tightly. Panels are sized to their
-   content rather than stretched to a shared row height, because stretching is
-   what manufactures empty space. The tall one sits beside a stack of short ones
-   chosen so the two come out about level. */
-.bento {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 18px;
-  align-items: start;
-}
-.bento > .panel, .bento-stack > .panel { margin: 0; min-width: 0; }
-.bento-2 { grid-column: span 2; }
-.bento-3 { grid-column: span 3; }
-.bento-4 { grid-column: span 4; }
-.bento-6 { grid-column: span 6; }
-
-/* The short panels beside the tall one. A column here, a row further down. */
-.bento-stack { display: grid; gap: 18px; align-content: start; min-width: 0; }
-
-/* Four across. The stack unpacks into two side by side so it stops being a
-   tall thin ribbon. */
-@media (max-width: 1180px) {
-  .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .bento-6, .bento-4 { grid-column: span 4; }
-  .bento-3, .bento-2 { grid-column: span 2; }
-  /* A stack that has the full width spreads its panels across it rather than
-     leaving a hole where a fixed two columns would not divide evenly. */
-  .bento-stack.bento-2 {
-    grid-column: span 4;
-    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
-  }
-  /* The other keeps half the row, beside the backup panel. */
-  .bento-stack.bento-3 { grid-column: span 2; grid-template-columns: 1fr; }
+/* Masonry. Nothing lines up with anything, which is the point: each panel takes
+   exactly the height its content needs and the columns fill themselves, so no
+   panel is padded out to match a neighbour. */
+.bento { columns: 3; column-gap: 18px; }
+.bento > .panel {
+  display: block;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  margin: 0 0 18px;
+  width: 100%;
 }
 
-/* Two across, for a tablet or a big phone held sideways. */
-@media (max-width: 820px) {
-  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  .bento-6, .bento-4, .bento-3 { grid-column: span 2; }
-  .bento-2 { grid-column: span 1; }
-  .bento-stack, .bento-stack.bento-2, .bento-stack.bento-3 {
-    grid-column: span 2;
-    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
-  }
-}
+@media (max-width: 1180px) { .bento { columns: 2; } }
+@media (max-width: 760px)  { .bento { columns: 1; column-gap: 0; } }
 
-/* One column. Everything in order, nothing side by side. */
-@media (max-width: 560px) {
-  .bento { grid-template-columns: 1fr; gap: 14px; }
-  .bento > .panel, .bento-stack { grid-column: 1 / -1; }
-  .bento-stack, .bento-stack.bento-2, .bento-stack.bento-3 { grid-template-columns: 1fr; }
+/* The key sits on one line with its buttons rather than stretched across the
+   panel on its own. */
+#tmdb form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#tmdb .inline-field { flex: 1 1 min(240px, 100%); margin: 0; }
+#tmdb .btn-row { flex: 0 0 auto; }
+
+/* A tick box that sits beside things rather than claiming a row. */
+.inline-check {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 400; margin: 0;
 }
+.inline-check input { width: auto; flex: none; }
+
+/* The send time, the clock switch and the tick box share one line. */
+#mail .timerow { gap: 12px; }
+#mail .timerow + .hint { margin-top: 6px; }

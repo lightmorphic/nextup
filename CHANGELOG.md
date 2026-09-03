@@ -2,6 +2,19 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.13.0] — 2026-09-03
+
+### Changed
+- Settings is masonry now. Nothing lines up with anything: each panel takes only
+  the height its content needs and the columns fill themselves, so no panel is
+  padded out to match a neighbour. Three columns, then two, then one.
+- The TMDB panel was the worst offender for wasted space. Its explanation is
+  shorter and the key now sits on one line with its buttons rather than
+  stretched across the whole panel on its own.
+- The email panel's address hint was three lines, which made that whole row of
+  fields tall. It is one line. The send time, the clock switch and the tick box
+  share a line rather than taking three.
+
 ## [0.12.0] — 2026-09-03
 
 ### Changed
