@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nextup: a self-hosted TV and film tracker</title>
-<meta name="description" content="Nextup remembers which episode you are on for every show you watch, tells you when the next one airs, and emails you each morning with what has become watchable. Free, open source, runs on your own server.">
+<meta name="description" content="Nextup remembers which episode you are on for every show you watch, tells you when the next one airs, emails you each morning, and feeds your episodes into your own calendar. Free, open source, runs on your own server.">
 <link rel="canonical" href="https://nextup.lightmorphic.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/site.css">
@@ -80,6 +80,11 @@
           "@type": "Question",
           "name": "How does Nextup know when a film reaches streaming?",
           "acceptedAnswer": { "@type": "Answer", "text": "TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I see my shows in my own calendar?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Settings gives you an address to paste into Google Calendar, Fastmail, Apple Calendar or anything else that accepts a subscription. It is not an import: the calendar checks back on its own, so new episodes and film release dates appear without you doing anything. The address carries a long random code, because a calendar application cannot sign in, and you can reissue that code at any time." }
         },
         {
           "@type": "Question",
@@ -285,6 +290,12 @@
           home viewing in blue. Each is labelled, so the two are told apart
           without relying on colour, and anything you have watched fades back.
         </p>
+        <p>
+          There is also an address you can paste into Google Calendar, Fastmail,
+          Apple Calendar or anything else that takes a subscription. Your
+          episodes and film releases then sit alongside your own appointments
+          and keep themselves up to date. Not an import, a subscription.
+        </p>
         <figure>
           <div class="shot">
             <img src="images/nextup-calendar.webp"
@@ -438,6 +449,9 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
 
       <dt>How does it know when a film reaches streaming?</dt>
       <dd>TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes. Rental and purchase are left out.</dd>
+
+      <dt>Can I see my shows in my own calendar?</dt>
+      <dd>Yes. Settings gives you an address to paste into Google Calendar, Fastmail, Apple Calendar or anything else that accepts a subscription. It is not an import: the calendar checks back on its own, so new episodes and film release dates appear without you doing anything. The address carries a long random code, because a calendar application cannot sign in, and you can reissue that code at any time to cut off anywhere you had pasted it.</dd>
 
       <dt>Can I keep a list of shows I might watch one day?</dt>
       <dd>Yes, that is the maybe list. Anything on it keeps its cover and its next air date but stays out of your dashboard, the calendar and the email, so it never makes you look behind on something you never started.</dd>
