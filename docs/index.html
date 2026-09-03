@@ -36,7 +36,7 @@
       "operatingSystem": "Linux, via Docker",
       "description": "A self-hosted tracker for TV shows and films. It records which episodes you have watched, shows the next one to watch, lists when new episodes air, tells you when a film reaches streaming in the UK, and emails you each morning.",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-      "softwareVersion": "0.9.3",
+      "softwareVersion": "0.9.4",
       "codeRepository": "https://github.com/lightmorphic/nextup",
       "programmingLanguage": "Python",
       "isAccessibleForFree": true,
@@ -74,7 +74,7 @@
         {
           "@type": "Question",
           "name": "Do I need a TMDB API key?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes, and it is free. Make an account at themoviedb.org, open Settings then API, and copy the API Key for v3 auth. You paste it into the Settings page inside Nextup, where it is stored encrypted." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, and it is free. Make an account, then go straight to themoviedb.org/settings/api and copy the API Key for v3 auth. You paste it into the Settings page inside Nextup, where it is stored encrypted." }
         },
         {
           "@type": "Question",
@@ -125,7 +125,13 @@
 
 <div class="hero">
   <div class="wrap hero-inner">
-    <h1>Which episode <span class="mark">were you on?</span></h1>
+    <h1>Which episode were you on?</h1>
+
+    <p class="answer">
+      <span class="visually-hidden">Slow Horses, series 5, episode 2. Nextup remembers, for every show you watch.</span>
+      <span class="typed" aria-hidden="true"><span class="typed-line" data-lines='["Slow Horses, series 5, episode 2.","Death in Paradise, series 14, episode 6.","Only Murders in the Building, series 5, episode 3.","Reacher, series 4, episode 6."]'>Slow Horses, series 5, episode 2.</span><span class="caret"></span></span>
+    </p>
+
     <p class="lede">
       Nextup remembers, for every show you watch, wherever you watched it. It
       works out what is waiting, tells you when the next one airs, and lets you
@@ -380,11 +386,11 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
         <div>
           <h3>Add your TMDB key</h3>
           <p>
-            Make a free account at
-            <a href="https://www.themoviedb.org/">themoviedb.org</a>, open
-            Settings then API, and copy the API Key for v3 auth. Paste it into
-            the Settings page in Nextup. It is checked against TMDB before it is
-            saved, and encrypted once it is.
+            Make a free account, then go straight to
+            <a href="https://www.themoviedb.org/settings/api">themoviedb.org/settings/api</a>
+            and copy the API Key for v3 auth. Paste it into the Settings page in
+            Nextup. It is checked against TMDB before it is saved, and encrypted
+            once it is.
           </p>
         </div>
       </li>
@@ -427,7 +433,7 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       <dd>No. Nextup is a notebook, not a player. It records what you have watched and tells you what is next. It holds no video, links to no streams and downloads nothing except artwork from TMDB.</dd>
 
       <dt>Do I need a TMDB API key?</dt>
-      <dd>Yes, and it is free. Make an account at themoviedb.org, open Settings then API, and copy the API Key for v3 auth. You paste it into the Settings page inside Nextup, where it is stored encrypted.</dd>
+      <dd>Yes, and it is free. Make an account, then go straight to <a href="https://www.themoviedb.org/settings/api">themoviedb.org/settings/api</a> and copy the API Key for v3 auth. You paste it into the Settings page inside Nextup, where it is stored encrypted.</dd>
 
       <dt>How does it know when a film reaches streaming?</dt>
       <dd>TMDB records several release dates for a film, including the digital, physical and television ones. Nextup reads those, prefers a UK date, and falls back to Ireland then the United States. It also lists which UK subscription, free and ad-supported services carry the film, using the JustWatch data TMDB publishes. Rental and purchase are left out.</dd>
@@ -513,5 +519,45 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
     </div>
   </div>
 </footer>
+<script>
+(function () {
+  'use strict';
+  var line = document.querySelector('.typed-line');
+  if (!line) { return; }
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reduced && reduced.matches) { return; }   // leave the first answer standing
+
+  var lines;
+  try { lines = JSON.parse(line.dataset.lines); } catch (e) { return; }
+  if (!lines || lines.length < 2) { return; }
+
+  var index = 0, at = lines[0].length, deleting = false;
+
+  function tick() {
+    var text = lines[index];
+    if (deleting) {
+      at -= 1;
+      line.textContent = text.slice(0, at);
+      if (at === 0) {
+        deleting = false;
+        index = (index + 1) % lines.length;
+        return setTimeout(tick, 260);
+      }
+      return setTimeout(tick, 22);
+    }
+    at += 1;
+    line.textContent = text.slice(0, at);
+    if (at === text.length) {
+      deleting = true;
+      return setTimeout(tick, 2600);
+    }
+    // A touch of unevenness, so it reads as typing rather than a machine.
+    return setTimeout(tick, 45 + Math.random() * 55);
+  }
+
+  setTimeout(function () { deleting = true; tick(); }, 2600);
+})();
+</script>
 </body>
 </html>
