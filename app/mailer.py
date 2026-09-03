@@ -253,18 +253,36 @@ def build_digest():
         counts.append(f"{len(films)} film{'s' if len(films) != 1 else ''}")
     subject = "Ready to watch: " + " and ".join(counts)
 
+    def block(headline, detail, overview, url):
+        """One item in the plain text version, carrying the same as the pictures."""
+        out = [f"  {headline}"]
+        if detail:
+            out.append(f"    {detail}")
+        summary = shorten(overview)
+        if summary:
+            out.append(f"    {summary}")
+        if url:
+            out.append(f"    {url}")
+        out.append("")
+        return out
+
     lines = [f"Available to watch now, from {when}.", ""]
     if episodes:
         lines.append("Television")
-        lines += [f"  {_episode_line(row)}" for row in episodes]
-        lines.append("")
+        for row in episodes:
+            services = f" - {row['network']}" if row["network"] else ""
+            lines += block(
+                _episode_line(row), None, row["overview"],
+                item_url("episode", row["id"]),
+            )
     if films:
         lines.append("Films")
         for row in films:
             services = queries.provider_names(row)
-            where = f" - on {', '.join(services)}" if services else ""
-            lines.append(f"  {row['title']}{where}")
-        lines.append("")
+            where = "On " + ", ".join(services) if services else "Out for home viewing"
+            lines += block(
+                row["title"], where, row["overview"], item_url("movie", row["id"]),
+            )
     lines.append("Sent by Nextup, running on your own server.")
     lines.append(f"Made by Lightmorphic. {SITE_URL}")
     text = "\n".join(lines)

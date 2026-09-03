@@ -2,6 +2,13 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.9.1] — 2026-09-03
+
+### Fixed
+- The plain text version of the email had neither the descriptions nor the
+  links, so anyone whose mail client shows text rather than pictures got less
+  than everyone else. It now carries the same.
+
 ## [0.9.0] — 2026-09-03
 
 ### Added

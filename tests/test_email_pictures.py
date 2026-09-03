@@ -133,3 +133,18 @@ def test_the_plain_text_version_still_stands_on_its_own(app, monkeypatch):
         _s, text, _h, _i = mailer.build_digest()
         assert "A Series S02E04" in text
         assert "A Film" in text
+
+
+def test_the_plain_text_carries_the_description_and_the_link(app, monkeypatch):
+    """Whoever reads the text version should not get less than the other one."""
+    from app import mailer, secretstore
+
+    _fake_posters(monkeypatch)
+    with app.app_context():
+        secretstore.set("site_url", "https://home.example.ts.net:4090")
+        _seed(app)
+        _s, text, _h, _i = mailer.build_digest()
+        assert "A thing happens." in text
+        assert "A film about something." in text
+        assert "https://home.example.ts.net:4090/episode/5001" in text
+        assert "https://home.example.ts.net:4090/movie/501" in text
