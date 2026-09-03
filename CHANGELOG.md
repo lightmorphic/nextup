@@ -2,6 +2,14 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.10.3] — 2026-09-03
+
+### Fixed
+- The bento's short panels had a hole between the heading and the content,
+  because forms were being pushed to the foot of their compartment. Content sits
+  at the top now and spare room falls to the bottom, where it reads as space
+  rather than a mistake.
+
 ## [0.10.2] — 2026-09-03
 
 ### Changed
