@@ -2,6 +2,19 @@
 
 All notable changes to Nextup are recorded here.
 
+## [0.9.3] — 2026-09-03
+
+### Changed
+- The website has been rebuilt. Every screenshot retaken on the current build,
+  including the show page, whose cast row used to run off the side of its panel
+  in the old picture.
+- The decorative label above the headline is gone, along with the grid of eight
+  small feature cards. Each section now stands on a real screenshot instead.
+- The morning email has a section of its own, since nothing else in this class
+  of software does it.
+- Fixed a column with a fixed minimum width that pushed the page sideways at 320
+  pixels, which is what a 1280 pixel screen becomes at 400 per cent zoom.
+
 ## [0.9.2] — 2026-09-03
 
 ### Changed
