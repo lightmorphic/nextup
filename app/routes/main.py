@@ -13,9 +13,11 @@ bp = Blueprint("main", __name__)
 @login_required
 def dashboard():
     order = "oldest" if request.args.get("order") == "oldest" else "newest"
+    page = request.args.get("page", "1")
+    page = int(page) if page.isdigit() and 1 <= int(page) <= 10000 else 1
     return render_template(
         "pages/dashboard.html",
-        ready=queries.ready_to_watch(order),
+        ready=queries.ready_to_watch(order, page=page),
         order=order,
         upcoming=queries.upcoming(days=21, limit=12),
         recent=queries.recently_watched(6),
