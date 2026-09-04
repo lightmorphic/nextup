@@ -20,7 +20,10 @@
 <div class="page-head">
   <div>
     <h1>Next up</h1>
-    <p>{{ ready|length }} thing{{ '' if ready|length == 1 else 's' }} you can watch right now.</p>
+    <p>
+      {{ ready.total }} thing{{ '' if ready.total == 1 else 's' }} out and waiting{% if ready.pages > 1 %},
+      showing {{ ready.first }}–{{ ready.last }}{% endif %}.
+    </p>
   </div>
   <span class="spacer"></span>
   <nav class="tabs" aria-label="Order">
@@ -50,51 +53,55 @@
 
 <div class="split">
   <div>
-    {% if ready %}
+    {% if ready.rows %}
       <div class="watchlist">
-        {% for item in ready %}
+        {% for item in ready.rows %}
           {% if item.kind == 'episode' %}
-            {% set show = item.show %}{% set ep = item.episode %}{% set nxt = item.pending %}
+            {% set ep = item.episode %}
             <article class="watch-card">
-              <a class="poster" href="{{ url_for('shows.detail', show_id=show.id) }}" tabindex="-1" aria-hidden="true">
-                {% if show.poster_path %}
-                  <img src="{{ url_for('images.poster', size='w185', tmdb_path=show.poster_path.lstrip('/')) }}"
+              <a class="poster" href="{{ url_for('shows.detail', show_id=item.show_id) }}" tabindex="-1" aria-hidden="true">
+                {% if item.poster_path %}
+                  <img src="{{ url_for('images.poster', size='w185', tmdb_path=item.poster_path.lstrip('/')) }}"
                        alt="" loading="lazy">
-                {% else %}<span class="poster-empty">{{ show.name }}</span>{% endif %}
+                {% else %}<span class="poster-empty">{{ item.show_name }}</span>{% endif %}
               </a>
               <div class="watch-card-body">
-                <a class="watch-card-show" href="{{ url_for('shows.detail', show_id=show.id) }}">{{ show.name }}</a>
+                <a class="watch-card-show" href="{{ url_for('shows.detail', show_id=item.show_id) }}">{{ item.show_name }}</a>
                 <div class="watch-card-ep">
                   {{ ep|episode_code }} ·
                   <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep.name or 'Episode ' ~ ep.episode_number }}</a>
                 </div>
                 <div class="watch-card-meta">
                   <span class="badge">Aired {{ ep.air_date|relative_day }}</span>
-                  {% if item.progress.remaining > 1 %}
+                  {% if item.lead and item.progress.remaining > 1 %}
                     <span class="badge badge-warning">! {{ item.progress.remaining }} behind</span>
                   {% endif %}
                 </div>
-                {% if item.behind %}
-                  <p class="hint" style="margin:6px 0 0">
-                    Carry on from {{ nxt|episode_code }} ·
-                    <a href="{{ url_for('shows.episode', episode_id=nxt.id) }}">{{ nxt.name or 'Episode ' ~ nxt.episode_number }}</a>
-                  </p>
+                {% if item.lead %}
+                  <div class="progress" role="img"
+                       aria-label="{{ item.progress.watched }} of {{ item.progress.aired }} aired episodes watched">
+                    <span style="width: {{ item.progress.percent }}%"></span>
+                  </div>
                 {% endif %}
-                <div class="progress" role="img"
-                     aria-label="{{ item.progress.watched }} of {{ item.progress.aired }} aired episodes watched">
-                  <span style="width: {{ item.progress.percent }}%"></span>
-                </div>
               </div>
               <div class="watch-card-actions">
-                <form method="post" action="{{ url_for('shows.watch_episode', episode_id=nxt.id) }}">
+                <form method="post" action="{{ url_for('shows.watch_episode', episode_id=ep.id) }}">
                   <input type="hidden" name="next" value="{{ request.full_path }}">
                   <button class="btn btn-primary btn-small" type="submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                          stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
-                    Watched{% if item.behind %} {{ nxt|episode_code }}{% endif %}
+                    Watched
                   </button>
                 </form>
-                <a class="btn btn-small" href="{{ url_for('shows.detail', show_id=show.id) }}">Open</a>
+                <form method="post"
+                      action="{{ url_for('shows.watch_through', show_id=item.show_id, episode_id=ep.id) }}">
+                  <input type="hidden" name="next" value="{{ request.full_path }}">
+                  <button class="btn btn-small btn-block" type="submit"
+                          title="Mark this episode and everything before it as watched"
+                          aria-label="Mark {{ ep|episode_code }} of {{ item.show_name }} and everything before it as watched">
+                    Up to here
+                  </button>
+                </form>
               </div>
             </article>
           {% else %}
@@ -129,12 +136,24 @@
                     Watched
                   </button>
                 </form>
-                <a class="btn btn-small" href="{{ url_for('movies.detail', movie_id=film.id) }}">Open</a>
+                <a class="btn btn-small btn-block" href="{{ url_for('movies.detail', movie_id=film.id) }}">Open</a>
               </div>
             </article>
           {% endif %}
         {% endfor %}
       </div>
+
+      {% if ready.pages > 1 %}
+        <nav class="pager" aria-label="More">
+          {% if ready.page > 1 %}
+            <a class="btn btn-small" href="{{ url_for('main.dashboard', order=order, page=ready.page - 1) }}">Newer</a>
+          {% endif %}
+          <span class="hint">Page {{ ready.page }} of {{ ready.pages }}</span>
+          {% if ready.page < ready.pages %}
+            <a class="btn btn-small" href="{{ url_for('main.dashboard', order=order, page=ready.page + 1) }}">Older</a>
+          {% endif %}
+        </nav>
+      {% endif %}
     {% else %}
       <div class="panel">
         <div class="empty">

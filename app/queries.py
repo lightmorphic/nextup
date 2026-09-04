@@ -110,23 +110,6 @@ def next_unwatched(show_id):
     )
 
 
-def latest_aired(show_id):
-    """The most recent episode to have gone out, whether watched or not."""
-    return db.query(
-        """
-        SELECT e.*, (w.episode_id IS NOT NULL) AS watched
-        FROM episode e
-        LEFT JOIN watched_episode w ON w.episode_id = e.id
-        WHERE e.show_id = ? AND e.season_number > 0
-          AND e.air_date IS NOT NULL AND e.air_date <= ?
-        ORDER BY e.air_date DESC, e.season_number DESC, e.episode_number DESC
-        LIMIT 1
-        """,
-        (show_id, available_cutoff_iso()),
-        one=True,
-    )
-
-
 def next_airing(show_id):
     """The next episode still to be broadcast."""
     return db.query(
@@ -154,43 +137,77 @@ def to_watch():
     return out
 
 
-def ready_to_watch(order="newest"):
-    """One list of everything you could sit down and watch right now.
+def ready_to_watch(order="newest", page=1, per_page=60):
+    """Everything that has come out and is still waiting for you, newest first.
 
-    A show is listed under the episode that has just gone out, because that
-    is what you came to the home page to find out. If you are behind, the
-    earlier episode you actually need next is carried alongside it, so the
-    tick still marks off the right one. Films join the same list once they
-    have reached home viewing. Newest first by default.
+    One row per episode rather than one per show, so a series you are eight
+    behind on takes eight lines, each under the day it went out. Films join
+    the same run at the date they reached home viewing. Long lists are paged,
+    because a big library can hold thousands of these.
     """
-    items = []
-    for show in tracked_shows():
-        pending = next_unwatched(show["id"])
-        if pending is None:
-            continue
-        latest = latest_aired(show["id"]) or pending
-        items.append(
-            {
-                "kind": "episode",
-                "date": latest["air_date"],
-                "show": show,
-                "episode": latest,
-                "pending": pending,
-                "behind": pending["id"] != latest["id"],
-                "progress": show_progress(show["id"]),
-            }
-        )
+    cutoff = available_cutoff_iso()
+    episodes = db.query(
+        """
+        SELECT e.*, s.name AS show_name, s.poster_path AS show_poster
+        FROM episode e
+        JOIN show s ON s.id = e.show_id
+        JOIN tracked_show t ON t.show_id = e.show_id
+             AND t.archived = 0 AND t.shortlist = 0
+        LEFT JOIN watched_episode w ON w.episode_id = e.id
+        WHERE w.episode_id IS NULL AND e.season_number > 0
+          AND e.air_date IS NOT NULL AND e.air_date <= ?
+        ORDER BY e.air_date DESC
+        """,
+        (cutoff,),
+    )
+
+    items = [
+        {
+            "kind": "episode",
+            "date": row["air_date"],
+            "show_id": row["show_id"],
+            "show_name": row["show_name"],
+            "poster_path": row["show_poster"],
+            "episode": row,
+        }
+        for row in episodes
+    ]
     for film in movies(watched=False, shortlist=False):
-        if not is_streamable(film):
-            continue
-        items.append({"kind": "film", "date": film["digital_release"], "film": film})
+        if is_streamable(film):
+            items.append({"kind": "film", "date": film["digital_release"], "film": film})
 
     missing = "0000-00-00" if order == "newest" else "9999-99-99"
-    items.sort(
-        key=lambda item: (item["date"] or missing),
-        reverse=(order == "newest"),
-    )
-    return items
+    items.sort(key=lambda item: (item["date"] or missing), reverse=(order == "newest"))
+
+    total = len(items)
+    pages = max(1, -(-total // per_page))
+    page = max(1, min(page, pages))
+    start = (page - 1) * per_page
+    window = items[start : start + per_page]
+
+    # How far behind you are belongs to the show, not to each of its episodes,
+    # so it is carried on the first line that show reaches on this page.
+    progress_cache, seen = {}, set()
+    for item in window:
+        if item["kind"] != "episode":
+            continue
+        show_id = item["show_id"]
+        if show_id not in progress_cache:
+            progress_cache[show_id] = show_progress(show_id)
+        item["progress"] = progress_cache[show_id]
+        item["lead"] = show_id not in seen
+        seen.add(show_id)
+
+    # Named "rows" rather than "items" because a template reaching for
+    # ready.items would get the dictionary's own method instead.
+    return {
+        "rows": window,
+        "total": total,
+        "page": page,
+        "pages": pages,
+        "first": start + 1 if window else 0,
+        "last": start + len(window),
+    }
 
 
 def available_today():
