@@ -110,6 +110,23 @@ def next_unwatched(show_id):
     )
 
 
+def latest_aired(show_id):
+    """The most recent episode to have gone out, whether watched or not."""
+    return db.query(
+        """
+        SELECT e.*, (w.episode_id IS NOT NULL) AS watched
+        FROM episode e
+        LEFT JOIN watched_episode w ON w.episode_id = e.id
+        WHERE e.show_id = ? AND e.season_number > 0
+          AND e.air_date IS NOT NULL AND e.air_date <= ?
+        ORDER BY e.air_date DESC, e.season_number DESC, e.episode_number DESC
+        LIMIT 1
+        """,
+        (show_id, available_cutoff_iso()),
+        one=True,
+    )
+
+
 def next_airing(show_id):
     """The next episode still to be broadcast."""
     return db.query(
@@ -140,21 +157,26 @@ def to_watch():
 def ready_to_watch(order="newest"):
     """One list of everything you could sit down and watch right now.
 
-    Each tracked show contributes its next unwatched episode, each film on
-    your list contributes itself once it has reached home viewing. Newest
-    first by default, so what has just landed is at the top.
+    A show is listed under the episode that has just gone out, because that
+    is what you came to the home page to find out. If you are behind, the
+    earlier episode you actually need next is carried alongside it, so the
+    tick still marks off the right one. Films join the same list once they
+    have reached home viewing. Newest first by default.
     """
     items = []
     for show in tracked_shows():
-        episode = next_unwatched(show["id"])
-        if episode is None:
+        pending = next_unwatched(show["id"])
+        if pending is None:
             continue
+        latest = latest_aired(show["id"]) or pending
         items.append(
             {
                 "kind": "episode",
-                "date": episode["air_date"],
+                "date": latest["air_date"],
                 "show": show,
-                "episode": episode,
+                "episode": latest,
+                "pending": pending,
+                "behind": pending["id"] != latest["id"],
                 "progress": show_progress(show["id"]),
             }
         )

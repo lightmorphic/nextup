@@ -54,7 +54,7 @@
       <div class="watchlist">
         {% for item in ready %}
           {% if item.kind == 'episode' %}
-            {% set show = item.show %}{% set ep = item.episode %}
+            {% set show = item.show %}{% set ep = item.episode %}{% set nxt = item.pending %}
             <article class="watch-card">
               <a class="poster" href="{{ url_for('shows.detail', show_id=show.id) }}" tabindex="-1" aria-hidden="true">
                 {% if show.poster_path %}
@@ -74,18 +74,24 @@
                     <span class="badge badge-warning">! {{ item.progress.remaining }} behind</span>
                   {% endif %}
                 </div>
+                {% if item.behind %}
+                  <p class="hint" style="margin:6px 0 0">
+                    Carry on from {{ nxt|episode_code }} ·
+                    <a href="{{ url_for('shows.episode', episode_id=nxt.id) }}">{{ nxt.name or 'Episode ' ~ nxt.episode_number }}</a>
+                  </p>
+                {% endif %}
                 <div class="progress" role="img"
                      aria-label="{{ item.progress.watched }} of {{ item.progress.aired }} aired episodes watched">
                   <span style="width: {{ item.progress.percent }}%"></span>
                 </div>
               </div>
               <div class="watch-card-actions">
-                <form method="post" action="{{ url_for('shows.watch_episode', episode_id=ep.id) }}">
+                <form method="post" action="{{ url_for('shows.watch_episode', episode_id=nxt.id) }}">
                   <input type="hidden" name="next" value="{{ request.full_path }}">
                   <button class="btn btn-primary btn-small" type="submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                          stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
-                    Watched
+                    Watched{% if item.behind %} {{ nxt|episode_code }}{% endif %}
                   </button>
                 </form>
                 <a class="btn btn-small" href="{{ url_for('shows.detail', show_id=show.id) }}">Open</a>

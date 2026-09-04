@@ -97,3 +97,65 @@ def test_the_dashboard_shows_films_and_episodes_together(signed_in, app):
     assert "A Film" in page
     assert "New Thing" in page
     assert "Later Film" not in page
+
+
+def _seed_behind(app):
+    from app import db
+
+    db.execute("INSERT OR REPLACE INTO show (id, name) VALUES (803, 'Behind Thing')")
+    db.execute(
+        "INSERT OR REPLACE INTO tracked_show (show_id, added_at, shortlist)"
+        " VALUES (803, '2026-01-01', 0)"
+    )
+    for number, (title, when) in enumerate(
+        [("Old One", _days_ago(60)), ("Old Two", _days_ago(40)), ("Just Aired", _days_ago(2))],
+        start=1,
+    ):
+        db.execute(
+            "INSERT OR REPLACE INTO episode (id, show_id, season_number, episode_number,"
+            " name, air_date) VALUES (?, 803, 2, ?, ?, ?)",
+            (8030 + number, number, title, when),
+        )
+
+
+def test_a_show_you_are_behind_on_is_headlined_by_the_newest_episode(app):
+    from app import queries
+
+    with app.app_context():
+        _seed_behind(app)
+        item = [i for i in queries.ready_to_watch() if i["kind"] == "episode"][0]
+        assert item["show"]["name"] == "Behind Thing"
+        assert item["episode"]["name"] == "Just Aired"
+        assert item["pending"]["name"] == "Old One"
+        assert item["behind"] is True
+        assert item["date"] == _days_ago(2)
+
+
+def test_a_caught_up_show_headlines_the_episode_you_still_need(app):
+    from app import queries
+
+    with app.app_context():
+        _seed_behind(app)
+        from app import db
+
+        for episode_id in (8031, 8032):
+            db.execute(
+                "INSERT INTO watched_episode (episode_id, show_id, watched_at)"
+                " VALUES (?, 803, '2026-01-02')",
+                (episode_id,),
+            )
+        item = [i for i in queries.ready_to_watch() if i["kind"] == "episode"][0]
+        assert item["episode"]["name"] == "Just Aired"
+        assert item["pending"]["name"] == "Just Aired"
+        assert item["behind"] is False
+
+
+def test_the_dashboard_names_the_episode_that_just_aired(signed_in, app):
+    with app.app_context():
+        _seed_behind(app)
+    page = signed_in.get("/").get_data(as_text=True)
+    assert "Just Aired" in page
+    assert "S02E03" in page
+    # and still points you at the one to carry on from
+    assert "Old One" in page
+    assert "S02E01" in page
