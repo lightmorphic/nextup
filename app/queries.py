@@ -137,6 +137,40 @@ def to_watch():
     return out
 
 
+def ready_to_watch(order="newest"):
+    """One list of everything you could sit down and watch right now.
+
+    Each tracked show contributes its next unwatched episode, each film on
+    your list contributes itself once it has reached home viewing. Newest
+    first by default, so what has just landed is at the top.
+    """
+    items = []
+    for show in tracked_shows():
+        episode = next_unwatched(show["id"])
+        if episode is None:
+            continue
+        items.append(
+            {
+                "kind": "episode",
+                "date": episode["air_date"],
+                "show": show,
+                "episode": episode,
+                "progress": show_progress(show["id"]),
+            }
+        )
+    for film in movies(watched=False, shortlist=False):
+        if not is_streamable(film):
+            continue
+        items.append({"kind": "film", "date": film["digital_release"], "film": film})
+
+    missing = "0000-00-00" if order == "newest" else "9999-99-99"
+    items.sort(
+        key=lambda item: (item["date"] or missing),
+        reverse=(order == "newest"),
+    )
+    return items
+
+
 def available_today():
     """Everything that becomes watchable today, given the offset.
 
