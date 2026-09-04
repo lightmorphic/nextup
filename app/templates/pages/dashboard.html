@@ -20,8 +20,13 @@
 <div class="page-head">
   <div>
     <h1>Next up</h1>
-    <p>{{ to_watch|length }} show{{ '' if to_watch|length == 1 else 's' }} with something waiting.</p>
+    <p>{{ ready|length }} thing{{ '' if ready|length == 1 else 's' }} you can watch right now.</p>
   </div>
+  <span class="spacer"></span>
+  <nav class="tabs" aria-label="Order">
+    <a class="{{ 'current' if order == 'newest' }}" href="{{ url_for('main.dashboard') }}">Just out</a>
+    <a class="{{ 'current' if order == 'oldest' }}" href="{{ url_for('main.dashboard', order='oldest') }}">Oldest first</a>
+  </nav>
 </div>
 
 <div class="stats" style="margin-bottom: 24px;">
@@ -45,46 +50,83 @@
 
 <div class="split">
   <div>
-    {% if to_watch %}
+    {% if ready %}
       <div class="watchlist">
-        {% for item in to_watch %}
-          {% set show = item.show %}{% set ep = item.episode %}
-          <article class="watch-card">
-            <a class="poster" href="{{ url_for('shows.detail', show_id=show.id) }}" tabindex="-1" aria-hidden="true">
-              {% if show.poster_path %}
-                <img src="{{ url_for('images.poster', size='w185', tmdb_path=show.poster_path.lstrip('/')) }}"
-                     alt="" loading="lazy">
-              {% else %}<span class="poster-empty">{{ show.name }}</span>{% endif %}
-            </a>
-            <div class="watch-card-body">
-              <a class="watch-card-show" href="{{ url_for('shows.detail', show_id=show.id) }}">{{ show.name }}</a>
-              <div class="watch-card-ep">
-                {{ ep|episode_code }} ·
-                <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep.name or 'Episode ' ~ ep.episode_number }}</a>
+        {% for item in ready %}
+          {% if item.kind == 'episode' %}
+            {% set show = item.show %}{% set ep = item.episode %}
+            <article class="watch-card">
+              <a class="poster" href="{{ url_for('shows.detail', show_id=show.id) }}" tabindex="-1" aria-hidden="true">
+                {% if show.poster_path %}
+                  <img src="{{ url_for('images.poster', size='w185', tmdb_path=show.poster_path.lstrip('/')) }}"
+                       alt="" loading="lazy">
+                {% else %}<span class="poster-empty">{{ show.name }}</span>{% endif %}
+              </a>
+              <div class="watch-card-body">
+                <a class="watch-card-show" href="{{ url_for('shows.detail', show_id=show.id) }}">{{ show.name }}</a>
+                <div class="watch-card-ep">
+                  {{ ep|episode_code }} ·
+                  <a href="{{ url_for('shows.episode', episode_id=ep.id) }}">{{ ep.name or 'Episode ' ~ ep.episode_number }}</a>
+                </div>
+                <div class="watch-card-meta">
+                  <span class="badge">Aired {{ ep.air_date|relative_day }}</span>
+                  {% if item.progress.remaining > 1 %}
+                    <span class="badge badge-warning">! {{ item.progress.remaining }} behind</span>
+                  {% endif %}
+                </div>
+                <div class="progress" role="img"
+                     aria-label="{{ item.progress.watched }} of {{ item.progress.aired }} aired episodes watched">
+                  <span style="width: {{ item.progress.percent }}%"></span>
+                </div>
               </div>
-              <div class="watch-card-meta">
-                <span class="badge">Aired {{ ep.air_date|relative_day }}</span>
-                {% if item.progress.remaining > 1 %}
-                  <span class="badge badge-warning">! {{ item.progress.remaining }} behind</span>
-                {% endif %}
+              <div class="watch-card-actions">
+                <form method="post" action="{{ url_for('shows.watch_episode', episode_id=ep.id) }}">
+                  <input type="hidden" name="next" value="{{ request.full_path }}">
+                  <button class="btn btn-primary btn-small" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
+                    Watched
+                  </button>
+                </form>
+                <a class="btn btn-small" href="{{ url_for('shows.detail', show_id=show.id) }}">Open</a>
               </div>
-              <div class="progress" role="img"
-                   aria-label="{{ item.progress.watched }} of {{ item.progress.aired }} aired episodes watched">
-                <span style="width: {{ item.progress.percent }}%"></span>
+            </article>
+          {% else %}
+            {% set film = item.film %}
+            <article class="watch-card">
+              <a class="poster" href="{{ url_for('movies.detail', movie_id=film.id) }}" tabindex="-1" aria-hidden="true">
+                {% if film.poster_path %}
+                  <img src="{{ url_for('images.poster', size='w185', tmdb_path=film.poster_path.lstrip('/')) }}"
+                       alt="" loading="lazy">
+                {% else %}<span class="poster-empty">{{ film.title }}</span>{% endif %}
+              </a>
+              <div class="watch-card-body">
+                <a class="watch-card-show" href="{{ url_for('movies.detail', movie_id=film.id) }}">{{ film.title }}</a>
+                <div class="watch-card-ep">
+                  Film{% if film.runtime %} · {{ film.runtime }} min{% endif %}
+                </div>
+                <div class="watch-card-meta">
+                  <span class="badge">
+                    {% if film.digital_release %}Out {{ film.digital_release|relative_day }}{% else %}Out now{% endif %}
+                  </span>
+                  {% for name in provider_names(film)[:2] %}
+                    <span class="badge badge-info">{{ name }}</span>
+                  {% endfor %}
+                </div>
               </div>
-            </div>
-            <div class="watch-card-actions">
-              <form method="post" action="{{ url_for('shows.watch_episode', episode_id=ep.id) }}">
-                <input type="hidden" name="next" value="{{ request.full_path }}">
-                <button class="btn btn-primary btn-small" type="submit">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-                       stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
-                  Watched
-                </button>
-              </form>
-              <a class="btn btn-small" href="{{ url_for('shows.detail', show_id=show.id) }}">Open</a>
-            </div>
-          </article>
+              <div class="watch-card-actions">
+                <form method="post" action="{{ url_for('movies.watched', movie_id=film.id) }}">
+                  <input type="hidden" name="next" value="{{ request.full_path }}">
+                  <button class="btn btn-primary btn-small" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4.5 4.5L19 7"/></svg>
+                    Watched
+                  </button>
+                </form>
+                <a class="btn btn-small" href="{{ url_for('movies.detail', movie_id=film.id) }}">Open</a>
+              </div>
+            </article>
+          {% endif %}
         {% endfor %}
       </div>
     {% else %}
