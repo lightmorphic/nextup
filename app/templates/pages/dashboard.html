@@ -4,14 +4,14 @@
 
 {% if not has_key %}
 <div class="notice">
-  <span>! No TMDB key yet, so nothing can be looked up.</span>
+  <span>No TMDB key yet, so nothing can be looked up.</span>
   <span class="spacer"></span>
   <a class="btn btn-small" href="{{ url_for('settings.index') }}">Add one</a>
 </div>
 {% endif %}
 {% if default_password %}
 <div class="notice">
-  <span>! You are still on the starter password.</span>
+  <span>You are still on the starter password.</span>
   <span class="spacer"></span>
   <a class="btn btn-small" href="{{ url_for('settings.index') }}">Change it</a>
 </div>
@@ -74,7 +74,7 @@
                 <div class="watch-card-meta">
                   <span class="badge">Aired {{ ep.air_date|relative_day }}</span>
                   {% if item.lead and item.progress.remaining > 1 %}
-                    <span class="badge badge-warning">! {{ item.progress.remaining }} behind</span>
+                    <span class="badge badge-warning">{{ item.progress.remaining }} behind</span>
                   {% endif %}
                 </div>
                 {% if item.lead %}
@@ -97,7 +97,7 @@
                       action="{{ url_for('shows.watch_through', show_id=item.show_id, episode_id=ep.id) }}">
                   <input type="hidden" name="next" value="{{ request.full_path }}">
                   <button class="btn btn-small btn-block" type="submit"
-                          title="Mark this episode and everything before it as watched"
+                          title="Marks this and everything before it"
                           aria-label="Mark {{ ep|episode_code }} of {{ item.show_name }} and everything before it as watched">
                     Up to here
                   </button>
@@ -226,8 +226,8 @@
       <p class="hint" style="margin:0">
         {{ last_sync.started_at[:16].replace('T', ' ') }} ·
         {{ last_sync.shows_done }} show{{ '' if last_sync.shows_done == 1 else 's' }} ·
-        {% if last_sync.status == 'ok' %}<span class="badge badge-success">✓ fine</span>
-        {% elif last_sync.status == 'error' %}<span class="badge badge-danger">! problems</span>
+        {% if last_sync.status == 'ok' %}<span class="badge badge-success">fine</span>
+        {% elif last_sync.status == 'error' %}<span class="badge badge-danger">problems</span>
         {% else %}<span class="badge">running</span>{% endif %}
       </p>
     </section>
