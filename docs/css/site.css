@@ -63,7 +63,12 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html {
+  -webkit-text-size-adjust: 100%; scroll-behavior: smooth;
+  /* Clears the bar that now sits over the top of the page, so a jump to
+     a section does not land underneath it. */
+  scroll-padding-top: 5.5rem;
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
@@ -110,7 +115,12 @@ p:last-child { margin-bottom: 0; }
 
 /* ------------------------------------------------------------------- nav */
 
-.site-nav { border-bottom: 1px solid var(--border); background: var(--bg); }
+/* Stays put at the top as you scroll. It needs its own background, or the
+   page would show through it. */
+.site-nav {
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+}
 .site-nav .wrap {
   display: flex; align-items: center; gap: 1.25rem;
   padding: 0.875rem 0; flex-wrap: wrap;
@@ -130,6 +140,7 @@ p:last-child { margin-bottom: 0; }
   text-decoration: none;
 }
 .site-nav nav a:hover { background: var(--muted); color: var(--fg); }
+.site-nav nav #all-apps { display: inline-flex; align-items: center; }
 
 /* ----------------------------------------------------------------- hero */
 
@@ -291,8 +302,20 @@ dl.faq dd { margin: 0; color: var(--muted-fg); max-width: var(--measure); }
   body { font-size: 1rem; }
   .wrap { width: min(100% - 1.75rem, 1120px); }
   .footer-cols { grid-template-columns: 1fr; }
-  .site-nav .wrap { gap: 0.75rem; }
-  .site-nav nav { margin-left: 0; width: 100%; }
+  /* One row, always. The name keeps its size and the links slide under it. */
+  .site-nav .wrap { gap: 0.75rem; flex-wrap: nowrap; }
+  .wordmark { flex: none; }
+  /* The bar stays put as you scroll, so it must not grow to three rows of
+     links and eat a quarter of a phone screen. The links stay on one row and
+     slide sideways instead. */
+  .site-nav nav {
+    flex: 1 1 0; min-width: 0;
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+  }
+  .site-nav nav::-webkit-scrollbar { display: none; }
+  .site-nav nav a { white-space: nowrap; }
+  .site-nav nav #all-apps { position: sticky; right: 0; background: var(--bg); }
+  html { scroll-padding-top: 5.5rem; }
   .btn { width: 100%; justify-content: center; }
   .hero-actions { width: 100%; }
 }
