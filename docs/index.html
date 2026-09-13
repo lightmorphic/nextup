@@ -36,7 +36,7 @@
       "operatingSystem": "Linux, via Docker",
       "description": "A self-hosted tracker for TV shows and films. It records which episodes you have watched, shows the next one to watch, lists when new episodes air, tells you when a film reaches streaming in the UK, and emails you each morning.",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-      "softwareVersion": "1.4.0",
+      "softwareVersion": "1.5.0",
       "codeRepository": "https://github.com/lightmorphic/nextup",
       "programmingLanguage": "Python",
       "isAccessibleForFree": true,
@@ -181,7 +181,7 @@
       <figure class="letter">
         <div class="shot">
           <img src="images/nextup-email.webp"
-               alt="The Nextup morning email, headed Ready to watch, listing a Reacher episode and the film The Runner, each with its cover, the service it is on and a short description."
+               alt="The Nextup morning email, headed Ready to watch, listing two television episodes and a film, each with its cover, the channel or service it is on and a short description."
                width="760" height="900" loading="lazy" decoding="async">
         </div>
       </figure>
@@ -368,8 +368,7 @@ sudo chown -R 1000:1000 /opt/nextup</code></pre>
       - "4090:8080"
     volumes:
       - /opt/nextup:/data
-    environment:
-      TZ: "Europe/London"</code></pre>
+      - /etc/localtime:/etc/localtime:ro</code></pre>
           <pre><code>docker compose up -d</code></pre>
         </div>
       </li>

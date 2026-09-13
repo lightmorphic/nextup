@@ -17,9 +17,9 @@ services:
       - /tmp
     volumes:
       - /opt/nextup:/data
+      # The morning email and the meaning of "today" both read the clock, so
+      # the container follows whatever timezone this machine is set to.
+      - /etc/localtime:/etc/localtime:ro
     environment:
       # Hours between automatic refreshes of tracked shows.
       NEXTUP_SYNC_HOURS: "12"
-      # The morning email and "what is available today" both read the clock,
-      # so set this to your own timezone rather than leaving it on UTC.
-      TZ: "Europe/London"

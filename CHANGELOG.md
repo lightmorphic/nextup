@@ -2,6 +2,22 @@
 
 All notable changes to Nextup are recorded here.
 
+## [1.5.0] — 2026-09-13
+
+- **The morning email is dark too.** It was still white, which was the last
+  light-coloured thing left. It also tells a mail client it is a dark message,
+  so nothing tries to invert it.
+- **Every screenshot on the website has been retaken.** All ten still showed
+  the old light app, and the dashboard and sharing card also showed the old
+  Next up layout from before 1.2.0.
+- **Fixed a broken grid on the Films page.** The Mark watched button was a
+  sibling of the film tile rather than part of it, so every film took two
+  columns and the button sat beside the poster instead of under it. With one
+  film ready it looked odd; with four it looked broken.
+- **The container takes its timezone from the machine it runs on**, by mounting
+  `/etc/localtime` read-only, rather than having Europe/London written into the
+  compose file.
+
 ## [1.4.0] — 2026-09-06
 
 ### Dark, and only dark

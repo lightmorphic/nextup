@@ -123,7 +123,7 @@ doing. Nothing else has to change.
 | `NEXTUP_PORT` | `8080` | Port inside the container |
 | `NEXTUP_SYNC_HOURS` | `12` | Hours between automatic refreshes |
 | `NEXTUP_HTTPS_ONLY` | `0` | Set to `1` only when every way in really is HTTPS. It marks the sign-in cookie Secure, so a browser will not send it over plain HTTP at all. Leave it off if you ever reach the container directly on `127.0.0.1:4090` |
-| `TZ` | unset | Your timezone, for example `Europe/London`. The morning email and the meaning of "today" both read the clock |
+| `TZ` | unset | Only needed if you want a different timezone from the machine itself. The compose file mounts `/etc/localtime` read-only instead, so the container follows the server. The morning email and the meaning of "today" both read the clock |
 
 Everything else — the TMDB key, your password, the accent colour — is set in the
 app itself.

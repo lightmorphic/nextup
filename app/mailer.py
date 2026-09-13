@@ -27,10 +27,11 @@ SYNOPSIS_LIMIT = 190
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
 BRAND = "#fbc711"
 ON_BRAND = "#645007"
-INK = "#111827"
-MUTED = "#6e6e77"
-LINE = "#e4e4e7"
-WASH = "#f7f7f8"
+INK = "#fafafa"
+MUTED = "#a1a1aa"
+LINE = "#27272a"
+WASH = "#09090b"
+CARD = "#1b1d29"
 
 DEFAULT_PORT = 587
 DEFAULT_HOUR = 8
@@ -307,13 +308,15 @@ def _html_shell(heading, inner, standfirst=""):
     return f"""<!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
 <title>Nextup</title></head>
 <body style="margin:0;padding:0;background:{WASH};">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
        style="background:{WASH};padding:28px 12px">
   <tr><td align="center">
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-           style="width:100%;max-width:600px;background:#ffffff;border:1px solid {LINE};
+           style="width:100%;max-width:600px;background:{CARD};border:1px solid {LINE};
                   border-radius:18px;overflow:hidden">
       <tr><td style="padding:26px 32px 4px 32px">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -455,6 +458,8 @@ def _html_digest(when, episodes, films):
     return f"""<!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
 <title>Nextup</title></head>
 <body style="margin:0;padding:0;background:{WASH};">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">
@@ -463,7 +468,7 @@ Available to watch now, from {_esc(when)}.</div>
        style="background:{WASH};padding:28px 12px">
   <tr><td align="center">
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-           style="width:100%;max-width:600px;background:#ffffff;border:1px solid {LINE};
+           style="width:100%;max-width:600px;background:{CARD};border:1px solid {LINE};
                   border-radius:18px;overflow:hidden">
 
       <tr><td style="padding:26px 32px 4px 32px">
