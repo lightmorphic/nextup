@@ -257,7 +257,14 @@ dl.faq dd { margin: 0; color: var(--muted-fg); max-width: var(--measure); }
   font-size: 0.8125rem; color: var(--muted-fg);
 }
 .sub-footer p { margin-bottom: 0.5rem; }
-.sub-footer-note { max-width: var(--measure); }
+/* The TMDB credit runs the full width of the footer and is ruled off from the
+   company details underneath it. */
+.sub-footer-note {
+  max-width: none;
+  margin: 0 0 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
 /* Company details on the left, the five legal pages hard right. They drop
    underneath and align left once there is no room to sit side by side. */
 .sub-footer-inner {
