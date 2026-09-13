@@ -251,6 +251,38 @@ dl.faq dd { margin: 0; color: var(--muted-fg); max-width: var(--measure); }
 .footer-cols a:hover { text-decoration: underline; }
 .footer-cols p { color: var(--muted-fg); font-size: 0.9375rem; max-width: 28rem; }
 
+/* ---- open-source sub-footer, the same block used across Lightmorphic ---- */
+
+.gh-foot {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+.gh-inner {
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem;
+  align-items: center; justify-content: space-between;
+}
+.gh-marks { display: flex; align-items: center; gap: 1rem; }
+.gh-marks a {
+  display: inline-flex; align-items: center;
+  color: var(--muted-fg); padding: 0.4rem 0;
+}
+.gh-marks a:hover { color: var(--fg); }
+.gh-links {
+  display: flex; flex-wrap: wrap; gap: 1.5rem;
+  margin-left: auto; justify-content: flex-end;
+}
+.gh-links a {
+  display: inline-flex; align-items: center;
+  color: var(--muted-fg); text-decoration: none;
+  font-size: 0.875rem; padding: 0.55rem 0;
+}
+.gh-links a:hover { color: var(--fg); text-decoration: underline; }
+
+@media (max-width: 700px) {
+  .gh-links { margin-left: 0; justify-content: flex-start; gap: 1rem; }
+  .gh-links a, .gh-marks a { min-height: 44px; }
+}
+
 .sub-footer {
   border-top: 1px solid var(--border);
   padding: 1.5rem 0 2.5rem;
