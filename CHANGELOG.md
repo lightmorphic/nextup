@@ -2,6 +2,23 @@
 
 All notable changes to Nextup are recorded here.
 
+## [1.5.1] — 2026-09-13
+
+- **The season you were working in stays open.** Ticking off the last unwatched
+  episode in, say, season two closed it and opened season one instead, because
+  the page opens whichever season holds the next episode you have not seen and
+  falls back to the first when there is none. The page now remembers which
+  seasons you had open, the same way it already remembers where you had
+  scrolled to.
+- **The hero fills the width of the site** rather than sitting in a narrow
+  column down the left with empty space beside it. The question and its typed
+  answer sit on the left, what it does and the way in on the right. The typing
+  animation is unchanged.
+- The open-source footer used across Lightmorphic now appears on every page,
+  and the Read the source button has gone with it.
+- The company number is no longer a link, and the TMDB credit runs the full
+  width of the footer with a rule under it.
+
 ## [1.5.0] — 2026-09-13
 
 - **The morning email is dark too.** It was still white, which was the last

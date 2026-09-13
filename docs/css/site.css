@@ -114,11 +114,24 @@ p:last-child { margin-bottom: 0; }
 
 /* ----------------------------------------------------------------- hero */
 
-.hero { padding: clamp(3rem, 9vw, 6rem) 0 clamp(2rem, 5vw, 3.5rem); }
-.hero-inner { display: grid; gap: 2rem; max-width: 44rem; }
+.hero { padding: clamp(2.25rem, 6vw, 4rem) 0 clamp(1.5rem, 4vw, 2.5rem); }
+/* Two columns across the width of the site: the question and its answer on
+   the left, what it does and the way in on the right. Each column keeps the
+   text to a readable measure, which one full-width column could not. */
+.hero-inner {
+  display: grid; gap: 1.75rem 3.5rem;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+}
+.hero-inner > * { min-width: 0; }
+.hero-side { display: grid; gap: 1.25rem; justify-items: start; }
+.hero-side .hero-note { margin-top: 0; }
 .hero p.lede {
-  font-size: clamp(1.125rem, 2.2vw, 1.375rem);
-  color: var(--muted-fg); max-width: 40rem; line-height: 1.55;
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  color: var(--muted-fg); line-height: 1.55; margin: 0;
+}
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 1.25rem; }
 }
 .hero-actions { display: flex; gap: 0.875rem; flex-wrap: wrap; align-items: center; }
 
@@ -345,7 +358,7 @@ dl.faq dd { margin: 0; color: var(--muted-fg); max-width: var(--measure); }
 
 /* ------------------------------------------------------------- headline */
 
-.hero h1 { max-width: 15ch; }
+.hero h1 { max-width: 18ch; margin: 0; }
 /* The headline asks a question; this line answers it, typed out and cycling
    through real examples. Without scripting the first answer simply stands. */
 .answer {
